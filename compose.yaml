@@ -1,0 +1,7 @@
+﻿services:
+  dotnetfiveapidemo:
+    image: dotnetfiveapidemo
+    build:
+      context: .
+      dockerfile: DotNetFiveApiDemo/Dockerfile
+
