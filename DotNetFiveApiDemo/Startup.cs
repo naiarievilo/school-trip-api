@@ -1,16 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json;
+using DotNetFiveApiDemo.Application.Auth.Extensions;
+using DotNetFiveApiDemo.Application.Extensions;
+using DotNetFiveApiDemo.Application.User.Extensions;
+using DotNetFiveApiDemo.Application.User.Identity;
+using DotNetFiveApiDemo.Infrastructure.Data.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 
 namespace DotNetFiveApiDemo
 {
@@ -23,33 +23,62 @@ namespace DotNetFiveApiDemo
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddDbContext<AppDbContext>(opts =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "DotNetFiveApiDemo", Version = "v1" });
+                opts.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            services.AddIdentityCore<ApplicationUser>(opts =>
+                {
+                    opts.Password.RequireDigit = true;
+                    opts.Password.RequireLowercase = true;
+                    opts.Password.RequireNonAlphanumeric = true;
+                    opts.Password.RequireUppercase = true;
+                    opts.Password.RequiredLength = 12;
+
+                    // Lockout settings
+                    opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                    opts.Lockout.MaxFailedAccessAttempts = 5;
+
+                    // User settings
+                    opts.User.RequireUniqueEmail = true;
+                })
+                .AddEntityFrameworkStores<AppDbContext>();
+
+            services.AddJwtAuthentication(Configuration);
+            services.AddSwaggerGenWithAuth();
+
+            services.AddUserService();
+
+            services.AddAutoMapper(typeof(Startup));
+            services.AddControllers()
+                .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler("/error-local-development");
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DotNetFiveApiDemo v1"));
+                app.UseSwaggerUI(opts => { opts.SwaggerEndpoint("/swagger/v1/swagger.json", "DotNetFiveApiDemo v1"); });
+            }
+            else
+            {
+                app.UseExceptionHandler("/error");
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => endpoints.MapControllers().RequireAuthorization());
         }
     }
 }

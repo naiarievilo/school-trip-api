@@ -1,0 +1,14 @@
+﻿services:
+  dotnet-five-api-demo-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - dotnet-five-api-demo:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+volumes:
+  dotnet-five-api-demo:
