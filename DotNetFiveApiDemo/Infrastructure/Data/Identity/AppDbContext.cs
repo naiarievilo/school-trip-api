@@ -1,5 +1,4 @@
 using DotNetFiveApiDemo.Application.User.Identity;
-using DotNetFiveApiDemo.Domain.Order.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,16 +11,9 @@ namespace DotNetFiveApiDemo.Infrastructure.Data.Identity
         {
         }
 
-        public DbSet<Order> Orders { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.ApplicationUser)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.UserId);
 
             modelBuilder.Entity<ApplicationUser>()
                 .OwnsOne(u => u.Address, address =>
