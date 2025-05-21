@@ -31,37 +31,12 @@ namespace DotNetFiveApiDemo.Application.Common.Services
             CreateMap<UserUpdateCommand, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.CurrentPassword))
-                .ForPath(dest => dest.Address.Street, opt =>
-                {
-                    opt.Condition(parameters => parameters.Source.Street != null);
-                    opt.MapFrom(src => src.Street);
-                })
-                .ForPath(dest => dest.Address.Number, opt =>
-                {
-                    opt.Condition(parameters => parameters.Source.Number != null);
-                    opt.MapFrom(src => src.Number);
-                })
-                .ForPath(dest => dest.Address.City, opt =>
-                {
-                    opt.Condition(parameters => parameters.Source.City != null);
-                    opt.MapFrom(src => src.City);
-                })
-                .ForPath(dest => dest.Address.State, opt =>
-                {
-                    opt.Condition(parameters => parameters.Source.State != null);
-                    opt.MapFrom(src => src.State);
-                })
-                .ForPath(dest => dest.Address.Country, opt =>
-                {
-                    opt.Condition(parameters => parameters.Source.State != null);
-                    opt.MapFrom(src => src.State);
-                })
-                .ForPath(dest => dest.Address.ZipCode, opt =>
-                {
-                    opt.Condition(parameters => parameters.Source.ZipCode != null);
-                    opt.MapFrom(src => src.ZipCode);
-                });
+                .ForPath(dest => dest.Address.Street, opt => opt.MapFrom(src => src.Street))
+                .ForPath(dest => dest.Address.Number, opt => opt.MapFrom(src => src.Number))
+                .ForPath(dest => dest.Address.City, opt => opt.MapFrom(src => src.City))
+                .ForPath(dest => dest.Address.State, opt => opt.MapFrom(src => src.State))
+                .ForPath(dest => dest.Address.Country, opt => opt.MapFrom(src => src.State))
+                .ForPath(dest => dest.Address.ZipCode, opt => opt.MapFrom(src => src.ZipCode));
 
             // ApplicationUser -> UserDto
             CreateMap<ApplicationUser, UserDto>()

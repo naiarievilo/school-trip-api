@@ -48,10 +48,10 @@ namespace DotNetFiveApiDemo.WebApi.Controllers
         [AllowAnonymous]
         [ProducesResponseType(typeof(Dictionary<string, string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Dictionary<string, string>>> LogInUser(
+        public async Task<ActionResult<Dictionary<string, string>>> SignInUser(
             [FromBody] UserLoginCommand command)
         {
-            var result = await _userApplicationService.LogInUserAsync(command);
+            var result = await _userApplicationService.SignInUserAsync(command);
             return result.IsSuccess
                 ? Ok(result.Value)
                 : BadRequest(result.Error.Description);
@@ -69,7 +69,7 @@ namespace DotNetFiveApiDemo.WebApi.Controllers
                 : BadRequest(result.Error.Description);
         }
 
-        [HttpPatch("{userId}")]
+        [HttpPut("{userId}")]
         [MatchesUserId]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]

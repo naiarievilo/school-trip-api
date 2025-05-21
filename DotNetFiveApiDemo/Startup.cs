@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using DotNetFiveApiDemo.Application.Auth.Extensions;
 using DotNetFiveApiDemo.Application.Extensions;
@@ -37,12 +36,6 @@ namespace DotNetFiveApiDemo
                     opts.Password.RequireNonAlphanumeric = true;
                     opts.Password.RequireUppercase = true;
                     opts.Password.RequiredLength = 12;
-
-                    // Lockout settings
-                    opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-                    opts.Lockout.MaxFailedAccessAttempts = 5;
-
-                    // User settings
                     opts.User.RequireUniqueEmail = true;
                 })
                 .AddEntityFrameworkStores<AppDbContext>();

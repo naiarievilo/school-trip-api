@@ -9,7 +9,7 @@ namespace DotNetFiveApiDemo.Domain.User.Interfaces
         Task<Result<TUser>> GetUserAsync(string email);
         Task<Result<TUser>> CreateUserAsync(TUser user);
         Task<Result<TUser>> ValidateCredentials(TUser user);
-        Task<Result<TUser>> UpdateUserAsync(TUser user, string newPassword = null);
+        Task<Result<TUser>> UpdateUserAsync(TUser user, string currentPassword, string newPassword);
         Task<Result<TUser>> DeleteUserAsync(int userId);
     }
 }

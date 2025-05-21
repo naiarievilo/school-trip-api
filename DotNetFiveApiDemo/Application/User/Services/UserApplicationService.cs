@@ -48,29 +48,30 @@ namespace DotNetFiveApiDemo.Application.User.Services
             return Result.Success(userDto);
         }
 
-        public async Task<Result<Dictionary<string, string>>> LogInUserAsync(UserLoginCommand command)
+        public async Task<Result<Dictionary<string, string>>> SignInUserAsync(UserLoginCommand command)
         {
             var user = _mapper.Map<ApplicationUser>(command);
 
-            var credentialsValidationResult = await _userService.ValidateCredentials(user);
-            if (credentialsValidationResult.IsFailure)
-                return Result.Failure<Dictionary<string, string>>(credentialsValidationResult.Error);
+            var validationResult = await _userService.ValidateCredentials(user);
+            if (validationResult.IsFailure)
+                return Result.Failure<Dictionary<string, string>>(validationResult.Error);
 
+            user = validationResult.Value;
             var result = _authenticationService.GenerateAccessAndRefreshTokens(user);
-            result.Add("userId", credentialsValidationResult.Value.Id.ToString());
+            result.Add("userId", user.Id.ToString());
             return Result.Success(result);
         }
 
         public async Task<Result<UserDto>> UpdateUserAsync(UserUpdateCommand command, int userId)
         {
-            var user = _mapper.Map<ApplicationUser>(command);
-            var getUserResult = await _userService.UpdateUserAsync(user);
+            var getUserResult = await _userService.GetUserAsync(userId);
             if (getUserResult.IsFailure) return Result.Failure<UserDto>(getUserResult.Error);
 
-            var userResult = await _userService.GetUserAsync(user.Id);
-            if (userResult.IsFailure) return Result.Failure<UserDto>(userResult.Error);
+            var user = _mapper.Map(command, getUserResult.Value);
+            var currentPassword = command.CurrentPassword;
+            var newPassword = command.NewPassword;
 
-            var userUpdateResult = await _userService.UpdateUserAsync(user);
+            var userUpdateResult = await _userService.UpdateUserAsync(user, currentPassword, newPassword);
             if (userUpdateResult.IsFailure) return Result.Failure<UserDto>(userUpdateResult.Error);
 
             var userDto = _mapper.Map<UserDto>(userUpdateResult.Value);

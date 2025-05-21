@@ -13,6 +13,7 @@ namespace DotNetFiveApiDemo.Domain.User.Services
 {
     public class UserService : IUserService<ApplicationUser>
     {
+        // TODO: Integrate SignInManager to enable additional security features (e.g., user lockout, reset password, confirm email) 
         private readonly ILogger<UserService> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -70,28 +71,28 @@ namespace DotNetFiveApiDemo.Domain.User.Services
             var unhashedPassword = user.PasswordHash;
             var email = user.Email;
             var username = user.UserName;
-            string loginField;
+            var loginField = "Username";
 
             if (email is not null)
             {
                 loginField = "Email";
                 user = await _userManager.FindByEmailAsync(email);
-                if (user is null) return Result.Failure<ApplicationUser>(UserError.FailedToLogInUser(loginField));
             }
             else
             {
-                loginField = "Username";
-                user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
-                if (user is null) return Result.Failure<ApplicationUser>(UserError.FailedToLogInUser(loginField));
+                user = await _userManager.FindByNameAsync(username);
             }
 
+            if (user is null) return Result.Failure<ApplicationUser>(UserError.FailedToLogInUser(loginField));
+
             var passwordsMatch = await _userManager.CheckPasswordAsync(user, unhashedPassword);
-            return !passwordsMatch
-                ? Result.Failure<ApplicationUser>(UserError.FailedToLogInUser(loginField))
-                : Result.Success(user);
+            return passwordsMatch
+                ? Result.Success(user)
+                : Result.Failure<ApplicationUser>(UserError.FailedToLogInUser(loginField));
         }
 
-        public async Task<Result<ApplicationUser>> UpdateUserAsync(ApplicationUser user, string newPassword)
+        public async Task<Result<ApplicationUser>> UpdateUserAsync(ApplicationUser user, string currentPassword = null,
+            string newPassword = null)
         {
             var updateUser = await _userManager.UpdateAsync(user);
             if (!updateUser.Succeeded)
@@ -101,11 +102,22 @@ namespace DotNetFiveApiDemo.Domain.User.Services
                 return Result.Failure<ApplicationUser>(UserError.FailedToUpdateUser(errors));
             }
 
-            var passwordsMatch = await _userManager.CheckPasswordAsync(user, user.PasswordHash);
+            if (string.IsNullOrWhiteSpace(currentPassword) && string.IsNullOrWhiteSpace(newPassword))
+                return Result.Success(user);
+
+            if (string.IsNullOrWhiteSpace(currentPassword) && !string.IsNullOrWhiteSpace(newPassword))
+                return Result.Failure<ApplicationUser>(
+                    UserError.FailedToUpdateUser("Current password is required to update password."));
+
+            if (!string.IsNullOrWhiteSpace(currentPassword) && string.IsNullOrWhiteSpace(newPassword))
+                return Result.Failure<ApplicationUser>(
+                    UserError.FailedToUpdateUser("New password is required to update password."));
+
+            var passwordsMatch = await _userManager.CheckPasswordAsync(user, currentPassword);
             if (!passwordsMatch)
                 return Result.Failure<ApplicationUser>(UserError.FailedToUpdateUser("Current password is incorrect."));
 
-            var updatePassword = await _userManager.ChangePasswordAsync(user, user.PasswordHash, newPassword);
+            var updatePassword = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
             if (!updatePassword.Succeeded)
             {
                 var errors = FormatIdentityErrors(updatePassword);
