@@ -7,7 +7,6 @@ using System.Text;
 using DotNetFiveApiDemo.Application.Auth.Interfaces;
 using DotNetFiveApiDemo.Application.Settings;
 using DotNetFiveApiDemo.Application.User.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -19,12 +18,10 @@ namespace DotNetFiveApiDemo.Application.Auth.Services
     {
         private const string TypeClaim = "Type";
         private readonly JwtSettings _jwtSettings;
-        private readonly ILogger<JwtTokenProvider> _logger;
         private readonly byte[] _secret;
 
-        public JwtTokenProvider(IOptions<JwtSettings> jwtSettings, ILogger<JwtTokenProvider> logger)
+        public JwtTokenProvider(IOptions<JwtSettings> jwtSettings)
         {
-            _logger = logger;
             _jwtSettings = jwtSettings.Value;
             _secret = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
         }
@@ -32,17 +29,17 @@ namespace DotNetFiveApiDemo.Application.Auth.Services
         public string GenerateToken(string refreshToken, JwtTokenTypes tokenType)
         {
             if (string.IsNullOrWhiteSpace(refreshToken)) throw new ArgumentNullException(nameof(refreshToken));
-            ;
+
 
             var tokenHandler = new JsonWebTokenHandler();
             var claims = tokenHandler.ValidateToken(refreshToken, GetTokenValidationParameters())
                 .ClaimsIdentity.Claims.ToList();
 
-            var userId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var userId = claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.NameIdentifier))?.Value;
             if (userId is null) throw new Exception("Refresh token token must have an user ID.");
 
             var refreshTokenType = claims
-                .FirstOrDefault(c => c.Properties[TypeClaim] == nameof(JwtTokenTypes.RefreshToken))
+                .FirstOrDefault(c => c.Type.Equals(TypeClaim) && c.Value.Equals(nameof(JwtTokenTypes.RefreshToken)))
                 ?.Value;
             if (refreshTokenType is null) throw new Exception("Token provided must be a refresh token.");
 
@@ -57,9 +54,13 @@ namespace DotNetFiveApiDemo.Application.Auth.Services
             if (string.IsNullOrWhiteSpace(token)) return false;
 
             var tokenHandler = new JsonWebTokenHandler();
+
             var validatedToken = tokenHandler.ValidateToken(token, GetTokenValidationParameters());
-            return validatedToken.ClaimsIdentity.Claims.Any(c =>
-                c is { Type: TypeClaim, Value: nameof(tokenType) });
+            if (validatedToken.IsValid)
+                return validatedToken.ClaimsIdentity.Claims.Any(c =>
+                    c.Type == TypeClaim && c.Value.Equals(tokenType.ToString()));
+
+            return false;
         }
 
         public string GenerateToken(ApplicationUser user, JwtTokenTypes tokenType)

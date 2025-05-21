@@ -95,6 +95,7 @@ namespace DotNetFiveApiDemo.WebApi.Controllers
 
         [HttpPost("refresh")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(Dictionary<string, string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public ActionResult<Dictionary<string, string>> RefreshAccessToken(RefreshTokenCommand command)
         {

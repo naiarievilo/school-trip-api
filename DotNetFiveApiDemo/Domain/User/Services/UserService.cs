@@ -44,14 +44,6 @@ namespace DotNetFiveApiDemo.Domain.User.Services
             return Result.Failure<ApplicationUser>(UserError.FailedToDeleteUser(errors));
         }
 
-        public async Task<Result<ApplicationUser>> GetUserAsync(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            return user is not null
-                ? Result.Success(user)
-                : Result.Failure<ApplicationUser>(UserError.UserNotFound(email));
-        }
-
         public async Task<Result<ApplicationUser>> CreateUserAsync(ApplicationUser user)
         {
             var result = await _userManager.CreateAsync(user, user.PasswordHash);
