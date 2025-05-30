@@ -16,7 +16,7 @@ namespace DotNetFiveApiDemo
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseKestrel(opts => { });
+                    webBuilder.UseKestrel();
                 });
         }
     }
