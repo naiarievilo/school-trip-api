@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace SchoolTripApi.Domain.Common.DTOs;
+namespace SchoolTripApi.Domain.Common.Errors;
 
 public abstract class Error(string code, string description) : IEquatable<Error>
 {

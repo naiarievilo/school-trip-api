@@ -4,7 +4,6 @@ using SchoolTripApi.Application.Common.Security.Abstractions;
 using SchoolTripApi.Application.Common.Security.DTOs;
 using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Infrastructure.Security.Entities;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Infrastructure.Security.Services;
 
@@ -38,7 +37,7 @@ public class AuthenticationService(
         return await securityTokenProvider.IssueAuthenticationTokensAsync(user.Id);
     }
 
-    public async Task<Result<AuthenticationTokensResult>> IssueAuthenticationTokens(AccountId accountId)
+    public async Task<Result<AuthenticationTokensResult>> IssueAuthenticationTokens(Guid accountId)
     {
         return await securityTokenProvider.IssueAuthenticationTokensAsync(accountId);
     }

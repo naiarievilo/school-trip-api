@@ -1,25 +1,53 @@
 using System.Text.RegularExpressions;
-using Vogen;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct PostalCode
+public class PostalCode : ValueObject
 {
     public static readonly int MaxLength = 9;
     private static readonly Regex CepPattern = new(@"^[0-9]{5}-?[0-9]{3}$", RegexOptions.Compiled);
 
-    private static string NormalizeInput(string input)
+    private PostalCode(string value)
     {
-        return string.IsNullOrWhiteSpace(input) ? input : input.Trim();
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Postal code is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("Postal code is too long.");
+        if (!CepPattern.IsMatch(value))
+            throw new ValueObjectValidationException("CEP must only contain digits and an optional hyphen.");
+
+        Value = Normalize(value);
     }
 
-    private static Validation Validate(string input)
+    public string Value { get; }
+
+    public static PostalCode From(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Validation.Invalid("Postal code is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("Postal code is too long.");
-        return !CepPattern.IsMatch(input)
-            ? Validation.Invalid("CEP must only contain digits and an optional hyphen.")
-            : Validation.Ok;
+        return new PostalCode(value);
+    }
+
+    public static Result<PostalCode> TryFrom(string value)
+    {
+        try
+        {
+            var postalCode = From(value);
+            return Result.Success(postalCode);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<PostalCode>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
+    }
+
+    private static string Normalize(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

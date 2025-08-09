@@ -1,16 +1,10 @@
 using SchoolTripApi.Domain.Common.Abstractions;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Infrastructure.Security.Entities;
 
 public class RefreshToken : Entity<Guid>, IAggregateRoot
 {
-    // For EF Core
-    public RefreshToken()
-    {
-    }
-
-    public RefreshToken(AccountId accountId, string token, string tokenFamily, DateTimeOffset expiresAt)
+    public RefreshToken(Guid accountId, string token, string tokenFamily, DateTime expiresAt)
     {
         Id = Guid.NewGuid();
         AccountId = accountId;
@@ -21,13 +15,13 @@ public class RefreshToken : Entity<Guid>, IAggregateRoot
         IsRevoked = false;
     }
 
-    public AccountId AccountId { get; private set; }
+    public Guid AccountId { get; init; }
 
-    public string Token { get; private set; }
+    public string Token { get; init; }
 
-    public string TokenFamily { get; private set; }
+    public string TokenFamily { get; init; }
 
-    public DateTimeOffset ExpiresAt { get; }
+    public DateTime ExpiresAt { get; init; }
 
     public bool IsRevoked { get; private set; }
 

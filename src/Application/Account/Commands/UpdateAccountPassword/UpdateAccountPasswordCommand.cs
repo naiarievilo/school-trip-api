@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Mediator;
 using SchoolTripApi.Domain.Common.DTOs;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Application.Account.Commands.UpdateAccountPassword;
 
@@ -19,9 +18,9 @@ public class UpdateAccountPasswordCommand(string currentPassword, string newPass
     [Compare(nameof(NewPassword), ErrorMessage = "New passwords do not match.")]
     public string ConfirmNewPassword { get; } = confirmNewPassword;
 
-    [JsonIgnore] public AccountId AccountId { get; private set; }
+    [JsonIgnore] public string? AccountId { get; private set; }
 
-    public UpdateAccountPasswordCommand For(AccountId accountId)
+    public UpdateAccountPasswordCommand For(string accountId)
     {
         AccountId = accountId;
         return this;

@@ -16,8 +16,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Ardalis.Specification.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore"/>
+        <PackageReference Include="Ardalis.Specification.EntityFrameworkCore"/>
 
         <!-- ASP.NET Core Authentication and Identity -->
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>

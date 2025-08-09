@@ -1,19 +1,18 @@
 using Mediator;
 using SchoolTripApi.Domain.Common.DTOs;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Application.Account.Queries;
 
 public class GetAccountInfoQuery : IQuery<Result<AccountDto>>
 {
-    private GetAccountInfoQuery(AccountId accountId)
+    private GetAccountInfoQuery(string accountId)
     {
         AccountId = accountId;
     }
 
-    public AccountId AccountId { get; private set; }
+    public string AccountId { get; private set; }
 
-    public static GetAccountInfoQuery For(AccountId accountId)
+    public static GetAccountInfoQuery For(string accountId)
     {
         return new GetAccountInfoQuery(accountId);
     }

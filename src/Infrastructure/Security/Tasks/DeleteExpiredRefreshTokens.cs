@@ -7,17 +7,12 @@ using SchoolTripApi.Infrastructure.Security.Specifications;
 
 namespace SchoolTripApi.Infrastructure.Security.Tasks;
 
-public sealed class DeleteExpiredRefreshTokens : BackgroundService
+public sealed class DeleteExpiredRefreshTokens(
+    ILogger<DeleteExpiredRefreshTokens> logger,
+    IServiceProvider serviceProvider)
+    : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromDays(1);
-    private readonly ILogger<DeleteExpiredRefreshTokens> _logger;
-    private readonly IServiceProvider _serviceProvider;
-
-    public DeleteExpiredRefreshTokens(ILogger<DeleteExpiredRefreshTokens> logger, IServiceProvider serviceProvider)
-    {
-        _logger = logger;
-        _serviceProvider = serviceProvider;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -25,31 +20,30 @@ public sealed class DeleteExpiredRefreshTokens : BackgroundService
         {
             try
             {
-                await DoTaskAsync();
+                await DoTaskAsync(stoppingToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Couldn't complete task: {1}", ex.Message);
+                logger.LogError(ex, "Couldn't complete task: {1}", ex.Message);
             }
 
             await Task.Delay(_interval, stoppingToken);
         }
     }
 
-    private async Task DoTaskAsync()
+    private async Task DoTaskAsync(CancellationToken cancellationToken)
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = serviceProvider.CreateScope();
 
-        var refreshTokenRepository =
-            scope.ServiceProvider.GetRequiredService<IRepository<RefreshToken>>();
+        var refreshTokenRepository = scope.ServiceProvider.GetRequiredService<IRepository<RefreshToken>>();
 
         var spec = new RefreshTokenByExpirationDate();
         IEnumerable<RefreshToken> expiredRefreshTokens =
-            await refreshTokenRepository.ListAsync(spec);
+            await refreshTokenRepository.ListAsync(spec, cancellationToken);
 
-        await refreshTokenRepository.DeleteRangeAsync(expiredRefreshTokens);
+        await refreshTokenRepository.DeleteRangeAsync(expiredRefreshTokens, cancellationToken);
 
-        _logger.LogInformation("Task completed successfully [Refresh tokens deleted: {1}].",
+        logger.LogInformation("Task completed successfully [Refresh tokens deleted: {1}].",
             expiredRefreshTokens.Count());
     }
 }

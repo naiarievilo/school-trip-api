@@ -1,27 +1,51 @@
 using System.Text.RegularExpressions;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 using SchoolTripApi.Domain.Common.Services;
-using Vogen;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct Street
+public class Street : ValueObject
 {
     public static readonly int MaxLength = 64;
     private static readonly Regex StreetPattern = new(@"^[a-zA-ZÀ-ÿ0-9\s\.\,\-\']+$", RegexOptions.Compiled);
 
-    private static Validation Validate(string input)
+    private Street(string value)
     {
-        if (!string.IsNullOrWhiteSpace(input)) return Validation.Invalid("Street is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("Street name is too long.");
-        return !StreetPattern.IsMatch(input)
-            ? Validation.Invalid("Street should only contain letters, spaces, hyphens, commas, and apostrophes.")
-            : Validation.Ok;
+        if (!string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Street is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("Street name is too long.");
+        if (!StreetPattern.IsMatch(value))
+            throw new ValueObjectValidationException(
+                "Street should only contain letters, spaces, hyphens, commas, and apostrophes.");
+
+        Value = Normalize(value);
     }
 
-    private static string NormalizeInput(string input)
+    public string Value { get; }
+
+    public static Street From(string value)
     {
-        return string.IsNullOrWhiteSpace(input) ? input : input.Trim();
+        return new Street(value);
+    }
+
+    public static Result<Street> TryFrom(string value)
+    {
+        try
+        {
+            var street = From(value);
+            return Result.Success(street);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<Street>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
+    }
+
+    private static string Normalize(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? value : value.Trim();
     }
 
     public bool Equals(string? other)
@@ -32,5 +56,10 @@ public readonly partial struct Street
     public bool Equals(Street other)
     {
         return PortugueseStringNormalizer.AreEquivalent(Value, other.Value);
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

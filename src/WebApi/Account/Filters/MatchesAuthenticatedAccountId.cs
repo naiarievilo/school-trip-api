@@ -15,19 +15,19 @@ internal class MatchesAuthenticatedAccountId(string routeParameterName = "accoun
             return;
         }
 
-        var userId = context.HttpContext.User.GetUserId();
-        if (userId is null)
+        var accountId = context.HttpContext.User.GetAccountId();
+        if (accountId is null)
         {
             context.Result = new ForbidResult();
             return;
         }
 
-        if (!context.RouteData.Values.TryGetValue(routeParameterName, out var routeUserIdObj))
+        if (!context.RouteData.Values.TryGetValue(routeParameterName, out var accountIdObjectFromRoute))
             throw new ApplicationException(
                 $"{context.RouteData}: Account's ID router parameter must be the equal to '_routeParameterName' of 'MatchesAuthenticatedUserId' attribute.");
 
-        var routeUserId = routeUserIdObj!.ToString();
-        if (!string.Equals(userId, routeUserId, StringComparison.OrdinalIgnoreCase))
+        var accountIdFromRoute = accountIdObjectFromRoute!.ToString();
+        if (!string.Equals(accountId, accountIdFromRoute))
             context.Result = new ForbidResult();
     }
 }

@@ -18,7 +18,6 @@ public static class DependencyInjection
             {
                 opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 opts.JsonSerializerOptions.Converters.Add(new CamelCaseValidationProblemDetailsConverter());
-                opts.JsonSerializerOptions.Converters.Add(new ValueObjectJsonConverterFactory());
             });
     }
 
@@ -26,7 +25,7 @@ public static class DependencyInjection
     {
         services.AddSwaggerGen(opts =>
         {
-            opts.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
+            opts.SwaggerDoc("v1", new OpenApiInfo { Title = "School Trip API", Version = "v1" });
 
             var securityScheme = new OpenApiSecurityScheme
             {

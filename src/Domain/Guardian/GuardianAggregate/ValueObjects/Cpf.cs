@@ -1,50 +1,68 @@
 using System.Text.RegularExpressions;
-using Vogen;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct Cpf
+public class Cpf : ValueObject
 {
     public static readonly int MaxLength = 14;
-    private static readonly Regex CpfPattern = CpfRegex();
+    private static readonly Regex CpfPattern = new(@"(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)", RegexOptions.Compiled);
+    private static readonly Regex DigitsOnly = new(@"[^\d]", RegexOptions.Compiled);
 
-    private static Validation Validate(string input)
+    private Cpf(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Validation.Invalid("CPF is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("CPF is too long.");
-        return !CpfPattern.IsMatch(input)
-            ? Validation.Invalid("CPF provided is invalid.")
-            : Validation.Ok;
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("CPF is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("CPF is too long.");
+        if (!CpfPattern.IsMatch(value)) throw new ValueObjectValidationException("CPF provided is invalid.");
+
+        Value = Normalize(value);
     }
 
-    [GeneratedRegex(@"(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)", RegexOptions.Compiled)]
-    private static partial Regex CpfRegex();
+    public string Value { get; }
+
+    public static Cpf From(string value)
+    {
+        return new Cpf(value);
+    }
+
+    public static Result<Cpf> TryFrom(string value)
+    {
+        try
+        {
+            var cpf = From(value);
+            return Result.Success(cpf);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<Cpf>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
+    }
 
     private static string CpfDigits(string cpf)
     {
-        return DigitsOnly().Replace(cpf.Trim(), string.Empty);
+        return DigitsOnly.Replace(cpf.Trim(), string.Empty);
     }
-
 
     private static string FormattedCpf(string digitsOnly)
     {
         return $"{digitsOnly[..3]}.{digitsOnly[3..6]}.{digitsOnly[6..9]}-{digitsOnly[9..11]}";
     }
 
-    private static string NormalizeInput(string input)
+    private static string Normalize(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return input;
+        if (string.IsNullOrWhiteSpace(value)) return value;
 
-        input = input.Trim();
-        if (input.Length > MaxLength) return input;
+        value = value.Trim();
+        if (value.Length > MaxLength) return value;
 
-        // Return a string that doesn't match the CPF pattern to fail validation.
-        const string invalidCpf = "Invalid CPF.";
-        var normalizedCpf = CpfDigits(input);
-        return IsAllSameDigits(normalizedCpf) || !IsValidCpf(normalizedCpf)
-            ? invalidCpf
-            : FormattedCpf(normalizedCpf);
+        var normalizedCpf = CpfDigits(value);
+        if (IsAllSameDigits(normalizedCpf) || !IsValidCpf(normalizedCpf))
+            throw new ValueObjectValidationException("CPF provided is invalid.");
+
+        return FormattedCpf(normalizedCpf);
     }
 
     private static bool IsAllSameDigits(string cpf)
@@ -73,6 +91,8 @@ public readonly partial struct Cpf
         return int.Parse(cpf[10].ToString()) == secondCheckDigit;
     }
 
-    [GeneratedRegex(@"[^\d]", RegexOptions.Compiled)]
-    private static partial Regex DigitsOnly();
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+    }
 }

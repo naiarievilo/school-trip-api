@@ -1,5 +1,7 @@
 #nullable disable
 
+using SchoolTripApi.Domain.Common.Errors;
+
 namespace SchoolTripApi.Domain.Common.DTOs;
 
 public class Result
@@ -43,6 +45,11 @@ public class Result
     public static Result<T> Failure<T>(Func<Error> error)
     {
         return new Result<T>(false, default, error());
+    }
+
+    public static Result Failure(Func<string, Error> error, string errorMessage)
+    {
+        return new Result(false, error(errorMessage));
     }
 
     public static Result<T> Failure<T>(Func<string, Error> error, string errorMessage)

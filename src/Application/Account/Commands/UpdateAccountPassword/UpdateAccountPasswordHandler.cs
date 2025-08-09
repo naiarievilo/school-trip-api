@@ -1,6 +1,7 @@
 using Mediator;
 using SchoolTripApi.Application.Common.Security.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Application.Account.Commands.UpdateAccountPassword;
 
@@ -9,7 +10,11 @@ public class UpdateAccountPasswordHandler(IAccountManager accountManager)
 {
     public async ValueTask<Result> Handle(UpdateAccountPasswordCommand command, CancellationToken cancellationToken)
     {
-        var updateAccountPassword = await accountManager.UpdateAccountPasswordAsync(command.AccountId,
+        var convertToAccountId = AccountId.TryFrom(command.AccountId);
+        if (convertToAccountId.Failed) return Result.Failure(convertToAccountId.Error);
+        var accountId = convertToAccountId.Value;
+
+        var updateAccountPassword = await accountManager.UpdateAccountPasswordAsync(accountId,
             command.CurrentPassword, command.NewPassword, cancellationToken);
         return updateAccountPassword.Succeeded
             ? Result.Success()

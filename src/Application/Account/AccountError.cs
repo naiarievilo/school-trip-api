@@ -1,9 +1,8 @@
-using SchoolTripApi.Domain.Common.DTOs;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
+using SchoolTripApi.Domain.Common.Errors;
 
 namespace SchoolTripApi.Application.Account;
 
-public sealed class AccountError : Error
+public sealed class AccountError(string code, string description) : Error(code, description)
 {
     public const string UserIsLockedOutCode = "UserError.UserIsLockedOut";
 
@@ -21,11 +20,7 @@ public sealed class AccountError : Error
     private const string FailedToSignInUserCode = "UserError.FailedToSignInUser";
     private const string FailedToResetPasswordCode = "UserError.FailedToResetPassword";
 
-    private AccountError(string code, string description) : base(code, description)
-    {
-    }
-
-    public static Error UserNotFound(AccountId accountId)
+    public static Error UserNotFound(Guid accountId)
     {
         return new AccountError(UserNotFoundCode, $"User with id '{accountId}' not found.");
     }

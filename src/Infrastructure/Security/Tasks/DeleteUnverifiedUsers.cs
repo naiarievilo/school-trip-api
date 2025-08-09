@@ -7,17 +7,10 @@ using SchoolTripApi.Infrastructure.Security.Entities;
 
 namespace SchoolTripApi.Infrastructure.Security.Tasks;
 
-public sealed class DeleteUnverifiedUsers : BackgroundService
+public sealed class DeleteUnverifiedUsers(ILogger<DeleteUnverifiedUsers> logger, IServiceProvider serviceProvider)
+    : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromDays(1);
-    private readonly ILogger<DeleteUnverifiedUsers> _logger;
-    private readonly IServiceProvider _serviceProvider;
-
-    public DeleteUnverifiedUsers(ILogger<DeleteUnverifiedUsers> logger, IServiceProvider serviceProvider)
-    {
-        _logger = logger;
-        _serviceProvider = serviceProvider;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -29,7 +22,7 @@ public sealed class DeleteUnverifiedUsers : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Couldn't complete task: {1}", ex.Message);
+                logger.LogError(ex, "Couldn't complete task: {1}", ex.Message);
             }
 
             await Task.Delay(_interval, stoppingToken);
@@ -38,7 +31,7 @@ public sealed class DeleteUnverifiedUsers : BackgroundService
 
     private async Task DoTaskAsync()
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = serviceProvider.CreateScope();
 
         var appDbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
@@ -50,6 +43,6 @@ public sealed class DeleteUnverifiedUsers : BackgroundService
         appDbContext.RemoveRange(unverifiedUsers);
         var usersDeleted = await appDbContext.SaveChangesAsync();
 
-        _logger.LogInformation("Task completed successfully [Users deleted: {1st}].", usersDeleted);
+        logger.LogInformation("Task completed successfully [Users deleted: {1st}].", usersDeleted);
     }
 }

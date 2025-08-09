@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +13,6 @@ using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Infrastructure.Security.Entities;
 using SchoolTripApi.Infrastructure.Security.Settings;
 using SchoolTripApi.Infrastructure.Security.Specifications;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Infrastructure.Security.Services;
 
@@ -67,7 +65,7 @@ internal sealed class SecurityTokenProvider(
     }
 
 
-    public async Task<Result<AuthenticationTokensResult>> IssueAuthenticationTokensAsync(AccountId accountId)
+    public async Task<Result<AuthenticationTokensResult>> IssueAuthenticationTokensAsync(Guid accountId)
     {
         var issueAccessToken = IssueAccessToken(accountId);
         var issueRefreshToken = await IssueRefreshTokenAsync(accountId, null);
@@ -85,7 +83,7 @@ internal sealed class SecurityTokenProvider(
         return await RefreshAccessTokenAsync(refreshToken);
     }
 
-    public async Task<Result<string>> IssueRefreshTokenAsync(AccountId accountId, string? tokenFamily)
+    public async Task<Result<string>> IssueRefreshTokenAsync(Guid accountId, string? tokenFamily)
     {
         var rng = RandomNumberGenerator.Create();
         var randomBytes = new byte[32];
@@ -95,7 +93,7 @@ internal sealed class SecurityTokenProvider(
             accountId,
             Convert.ToBase64String(randomBytes),
             tokenFamily ?? Guid.NewGuid().ToString(),
-            DateTimeOffset.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresAtInDays)
+            DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresAtInDays)
         );
 
         try
@@ -111,7 +109,7 @@ internal sealed class SecurityTokenProvider(
         return Result.Success(refreshToken.Token);
     }
 
-    public AccessTokenResult IssueAccessToken(AccountId accountId)
+    public AccessTokenResult IssueAccessToken(Guid accountId)
     {
         var claims = CreateClaims(accountId.ToString());
         var expiresAt = AccessTokenExpiresAt;
@@ -142,14 +140,13 @@ internal sealed class SecurityTokenProvider(
         return Result.Success(emailConfirmationToken);
     }
 
-    private static List<Claim> CreateClaims(string userId)
+    private static List<Claim> CreateClaims(string accountId)
     {
         return new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, userId),
+            new(JwtRegisteredClaimNames.Sub, accountId),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),
-            new(ClaimTypes.NameIdentifier, userId)
+            new(ClaimTypes.NameIdentifier, accountId)
         };
     }
 
@@ -158,6 +155,7 @@ internal sealed class SecurityTokenProvider(
         return new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
+            IssuedAt = DateTime.UtcNow,
             Expires = expiresAt,
             SigningCredentials = _signingCredentials,
             Issuer = _jwtSettings.Issuer,

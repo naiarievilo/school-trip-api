@@ -1,19 +1,18 @@
 using Mediator;
 using SchoolTripApi.Domain.Common.DTOs;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Application.Account.Commands.SendAccountEmailConfirmation;
 
 public class SendAccountEmailConfirmationCommand : ICommand<Result>
 {
-    private SendAccountEmailConfirmationCommand(AccountId accountId)
+    private SendAccountEmailConfirmationCommand(string accountId)
     {
         AccountId = accountId;
     }
 
-    public AccountId AccountId { get; private set; }
+    public string AccountId { get; private set; }
 
-    public static SendAccountEmailConfirmationCommand For(AccountId accountId)
+    public static SendAccountEmailConfirmationCommand For(string accountId)
     {
         return new SendAccountEmailConfirmationCommand(accountId);
     }

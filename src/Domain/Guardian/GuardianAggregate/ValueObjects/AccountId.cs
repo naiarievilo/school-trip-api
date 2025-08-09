@@ -1,4 +1,7 @@
 using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
@@ -16,9 +19,22 @@ public class AccountId : ValueObject
         return new AccountId(value);
     }
 
-    public static implicit operator AccountId(string accountId)
+    public static Result<AccountId> TryFrom(string? value)
     {
-        return From(Guid.Parse(accountId));
+        try
+        {
+            return Result.Success((AccountId)value);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<AccountId>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
+    }
+
+    public static explicit operator AccountId(string? value)
+    {
+        if (Guid.TryParse(value, out var parsedAccountId)) return From(parsedAccountId);
+        throw new ValueObjectValidationException("Guid provided couldn't be converted to 'AccountId' value object.");
     }
 
     protected override IEnumerable<object> GetEqualityComponents()

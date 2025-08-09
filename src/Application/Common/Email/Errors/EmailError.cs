@@ -1,18 +1,17 @@
-using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
 
-namespace SchoolTripApi.Application.Common.Email.Errors
+namespace SchoolTripApi.Application.Common.Email.Errors;
+
+public class EmailError : Error
 {
-    public class EmailError : Error
+    private const string EmailNotSentCode = "MailError.EmailNotSent";
+
+    private EmailError(string code, string description) : base(code, description)
     {
-        private const string EmailNotSentCode = "MailError.EmailNotSent";
+    }
 
-        private EmailError(string code, string description) : base(code, description)
-        {
-        }
-
-        public static Error EmailNotSent()
-        {
-            return new EmailError(EmailNotSentCode, "Failed to send email. Try again later.");
-        }
+    public static Error EmailNotSent()
+    {
+        return new EmailError(EmailNotSentCode, "Failed to send email. Try again later.");
     }
 }

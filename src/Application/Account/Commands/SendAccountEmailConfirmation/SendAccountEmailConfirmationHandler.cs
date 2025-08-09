@@ -1,6 +1,7 @@
 using Mediator;
 using SchoolTripApi.Application.Common.Security.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Application.Account.Commands.SendAccountEmailConfirmation;
 
@@ -12,7 +13,11 @@ public class SendAccountEmailConfirmationHandler(
     public async ValueTask<Result> Handle(SendAccountEmailConfirmationCommand command,
         CancellationToken cancellationToken)
     {
-        var getAccountInfo = await accountManager.GetAccountInfoAsync(command.AccountId, cancellationToken);
+        var convertToAccountId = AccountId.TryFrom(command.AccountId);
+        if (convertToAccountId.Failed) return Result.Failure(convertToAccountId.Error);
+        var accountId = convertToAccountId.Value;
+        
+        var getAccountInfo = await accountManager.GetAccountInfoAsync(accountId, cancellationToken);
         if (getAccountInfo.Failed) return Result.Failure(getAccountInfo.Error);
         var accountInfo = getAccountInfo.Value;
 

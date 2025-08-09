@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SchoolTripApi.Application.Account;
-using SchoolTripApi.Application.Account.Commands.CreateAccount;
 using SchoolTripApi.Application.Account.Commands.UpdateAccountEmail;
 using SchoolTripApi.Application.Common.Abstractions;
 using SchoolTripApi.Application.Common.Security.Abstractions;
@@ -16,7 +15,6 @@ namespace SchoolTripApi.Infrastructure.Security.Services;
 public class AccountManager(
     UserManager<Account> userManager,
     IAppLogger<AccountManager> logger,
-    IRepository<Guardian> guardianRepository,
     IMapper mapper)
     : IAccountManager
 {
@@ -60,41 +58,20 @@ public class AccountManager(
 
     public async Task<Result<AccountDto>> GetAccountInfoAsync(AccountId accountId, CancellationToken cancellationToken)
     {
-        var userAccount = await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId), cancellationToken);
-        if (userAccount is null) return Result.Failure<AccountDto>(AccountError.UserNotFound(accountId));
+        var userAccount =
+            await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId.Value), cancellationToken);
+        if (userAccount is null) return Result.Failure<AccountDto>(AccountError.UserNotFound(accountId.Value));
 
         var userAccountDto = mapper.Map<AccountDto>(userAccount);
         return Result.Success(userAccountDto);
     }
 
-    public async Task<Result<UpdateAccountEmailResult>> UpdateAccountEmailAsync(AccountId accountId,
-        string newEmail, CancellationToken cancellationToken = default)
-    {
-        var userAccount = await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId), cancellationToken);
-        if (userAccount is null) return Result.Failure<UpdateAccountEmailResult>(AccountError.UserNotFound(accountId));
-
-        if (newEmail.Equals(userAccount.Email))
-            return Result.Failure<UpdateAccountEmailResult>(AccountError.EmailAlreadyInUse);
-
-        var newEmailUserAccount = await userManager.FindByEmailAsync(newEmail);
-        if (newEmailUserAccount is not null)
-            return Result.Failure<UpdateAccountEmailResult>(AccountError.EmailAlreadyInUse);
-
-        userAccount.Email = newEmail;
-        userAccount.UserName = GetEmailUsername(newEmail);
-        var updateUser = await userManager.UpdateAsync(userAccount);
-        if (updateUser.Succeeded) return Result.Success(UpdateAccountEmailResult.From(userAccount.EmailConfirmed));
-
-        var errors = FormatIdentityErrors(updateUser.Errors);
-        logger.LogInformation("Failed to update user email: {1}", errors);
-        return Result.Failure<UpdateAccountEmailResult>(AccountError.FailedToUpdateEmail(errors));
-    }
-
     public async Task<Result> UpdateAccountPasswordAsync(AccountId accountId, string currentPassword,
-        string newPassword, CancellationToken cancellationToken = default)
+        string newPassword, CancellationToken cancellationToken)
     {
-        var userAccount = await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId), cancellationToken);
-        if (userAccount is null) return Result.Failure(AccountError.UserNotFound(accountId));
+        var userAccount =
+            await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId.Value), cancellationToken);
+        if (userAccount is null) return Result.Failure(AccountError.UserNotFound(accountId.Value));
 
         var passwordsMatch = await userManager.CheckPasswordAsync(userAccount, currentPassword);
         if (!passwordsMatch)
@@ -107,10 +84,11 @@ public class AccountManager(
         return Result.Failure(AccountError.FailedToUpdateUserInfo(errors));
     }
 
-    public async Task<Result> DeleteAccountAsync(AccountId accountId, CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteAccountAsync(AccountId accountId, CancellationToken cancellationToken)
     {
-        var userAccount = await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId), cancellationToken);
-        if (userAccount is null) return Result.Failure(AccountError.UserNotFound(accountId));
+        var userAccount =
+            await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId.Value), cancellationToken);
+        if (userAccount is null) return Result.Failure(AccountError.UserNotFound(accountId.Value));
 
         var deleteUser = await userManager.DeleteAsync(userAccount);
         if (deleteUser.Succeeded) return Result.Success<Guardian>();
@@ -120,24 +98,15 @@ public class AccountManager(
         return Result.Failure<Guardian>(AccountError.FailedToDeleteUser(errors));
     }
 
-    public async Task<Result<AccountDto>> CreateAccountAsync(CreateAccountCommand command,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<AccountDto>> CreateAccountAsync(string email, string password,
+        CancellationToken cancellationToken)
     {
-        var email = command.Email;
-        var password = command.Password;
-        var fullName = command.FullName;
-        var phoneNumber = command.PhoneNumber;
-
         var userAccount = await userManager.FindByEmailAsync(email);
         if (userAccount is not null)
             return Result.Failure<AccountDto>(AccountError.EmailAlreadyInUse);
 
-        userAccount = new Account
-        {
-            UserName = GetEmailUsername(email),
-            Email = email,
-            PhoneNumber = phoneNumber
-        };
+        var userName = GetEmailUserName(email);
+        userAccount = new Account { Email = email, UserName = userName };
 
         var createUser = await userManager.CreateAsync(userAccount, password);
         if (!createUser.Succeeded)
@@ -146,16 +115,36 @@ public class AccountManager(
             return Result.Failure<AccountDto>(AccountError.FailedToSignUpUser(errors));
         }
 
-        var guardian = new Guardian(userAccount.Id, fullName);
-        await guardianRepository.AddAsync(guardian, cancellationToken);
+        var getAccountInfo = await GetAccountInfoAsync(email, cancellationToken);
+        if (getAccountInfo.Failed) return Result.Failure<AccountDto>(getAccountInfo.Error);
+        var accountInfo = getAccountInfo.Value;
 
-        return Result.Success(new AccountDto
-        {
-            Id = userAccount.Id,
-            Email = userAccount.Email,
-            IsEmailConfirmed = userAccount.EmailConfirmed,
-            PhoneNumber = userAccount.PhoneNumber
-        });
+        return Result.Success(accountInfo);
+    }
+
+    public async Task<Result<UpdateAccountEmailResult>> UpdateAccountEmailAsync(AccountId accountId,
+        string newEmail, CancellationToken cancellationToken)
+    {
+        var userAccount =
+            await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId.Value), cancellationToken);
+        if (userAccount is null)
+            return Result.Failure<UpdateAccountEmailResult>(AccountError.UserNotFound(accountId.Value));
+
+        if (newEmail.Equals(userAccount.Email))
+            return Result.Failure<UpdateAccountEmailResult>(AccountError.EmailAlreadyInUse);
+
+        var newEmailUserAccount = await userManager.FindByEmailAsync(newEmail);
+        if (newEmailUserAccount is not null)
+            return Result.Failure<UpdateAccountEmailResult>(AccountError.EmailAlreadyInUse);
+
+        userAccount.Email = newEmail;
+        userAccount.UserName = GetEmailUserName(newEmail);
+        var updateUser = await userManager.UpdateAsync(userAccount);
+        if (updateUser.Succeeded) return Result.Success(UpdateAccountEmailResult.From(userAccount.EmailConfirmed));
+
+        var errors = FormatIdentityErrors(updateUser.Errors);
+        logger.LogInformation("Failed to update user email: {1}", errors);
+        return Result.Failure<UpdateAccountEmailResult>(AccountError.FailedToUpdateEmail(errors));
     }
 
     private string FormatIdentityErrors(IEnumerable<IdentityError> errors)
@@ -164,7 +153,7 @@ public class AccountManager(
         return string.Join(" ", errors.Select(e => e.Description));
     }
 
-    private string GetEmailUsername(string email)
+    private string GetEmailUserName(string email)
     {
         return email[..email.IndexOf('@')];
     }

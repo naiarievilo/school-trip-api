@@ -1,27 +1,51 @@
 using System.Text.RegularExpressions;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 using SchoolTripApi.Domain.Common.Services;
-using Vogen;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct State
+public class State : ValueObject
 {
     public static readonly int MaxLength = 32;
     private static readonly Regex StatePattern = new(@"^([A-Z]{2}|[A-Za-zÀ-ÿ\s\-'\.]+)$", RegexOptions.Compiled);
 
-    private static string NormalizeInput(string input)
+    private State(string value)
     {
-        return string.IsNullOrWhiteSpace(input) ? input : input.Trim();
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("State is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("State name is too long.");
+        if (!StatePattern.IsMatch(value))
+            throw new ValueObjectValidationException(
+                "State name must contain only letters, spaces, hyphens, periods, and apostrophes.");
+
+        Value = Normalize(value);
     }
 
-    private static Validation Validate(string input)
+    public string Value { get; }
+
+    private static string Normalize(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Validation.Invalid("State is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("State name is too long.");
-        return !StatePattern.IsMatch(input)
-            ? Validation.Invalid("State name must contain only letters, spaces, hyphens, periods, and apostrophes.")
-            : Validation.Ok;
+        return string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+    }
+
+    public static State From(string value)
+    {
+        return new State(value);
+    }
+
+    public static Result<State> TryFrom(string value)
+    {
+        try
+        {
+            var state = From(value);
+            return Result.Success(state);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<State>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
     }
 
     public bool Equals(string? other)
@@ -32,5 +56,10 @@ public readonly partial struct State
     public bool Equals(State other)
     {
         return PortugueseStringNormalizer.AreEquivalent(Value, other.Value);
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

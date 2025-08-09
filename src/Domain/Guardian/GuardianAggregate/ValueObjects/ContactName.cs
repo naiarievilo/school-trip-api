@@ -1,27 +1,47 @@
 using System.Text.RegularExpressions;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 using SchoolTripApi.Domain.Common.Services;
-using Vogen;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct ContactName
+public class ContactName : ValueObject
 {
     public static readonly int MaxLength = 32;
     private static readonly Regex ContactNamePattern = new(@"^[A-Za-zÀ-ÿ\s\-']+$", RegexOptions.Compiled);
 
-    private static string NormalizeInput(string input)
+    private ContactName(string value)
     {
-        return string.IsNullOrWhiteSpace(input) ? input : input.Trim();
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ValueObjectValidationException("Contact name is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("Contact name is too long.");
+        if (!ContactNamePattern.IsMatch(value))
+            throw new ValueObjectValidationException(
+                "Contact name must contain only letters, hyphens, and apostrophes.");
+
+        Value = value;
     }
 
-    private static Validation Validate(string input)
+    public string Value { get; }
+
+    public static ContactName From(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Validation.Invalid("Contact name is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("Contact name is too long.");
-        return !ContactNamePattern.IsMatch(input)
-            ? Validation.Invalid("Contact name must contain only letters, hyphens, and apostrophes.")
-            : Validation.Ok;
+        return new ContactName(value);
+    }
+
+    public static Result<ContactName> TryFrom(string value)
+    {
+        try
+        {
+            var contactName = From(value);
+            return Result.Success(contactName);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<ContactName>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
     }
 
     public bool Equals(string? other)
@@ -32,5 +52,10 @@ public readonly partial struct ContactName
     public bool Equals(ContactName other)
     {
         return PortugueseStringNormalizer.AreEquivalent(Value, other.Value);
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

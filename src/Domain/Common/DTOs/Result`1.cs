@@ -1,5 +1,7 @@
 #nullable disable
 
+using SchoolTripApi.Domain.Common.Errors;
+
 namespace SchoolTripApi.Domain.Common.DTOs;
 
 public class Result<T> : Result
@@ -18,11 +20,6 @@ public class Result<T> : Result
             if (!Succeeded) throw new InvalidOperationException("Cannot access value of a failed result.");
             return _value;
         }
-    }
-
-    public Result<T> Failure(Func<string, Error> error, string errorMessage)
-    {
-        return new Result<T>(false, default, error(errorMessage));
     }
 
     public TResult Match<TResult>(Func<T, TResult> onSuccess, Func<Error, TResult> onFailure)

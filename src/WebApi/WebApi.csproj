@@ -21,4 +21,8 @@
         <!-- ASP.NET Authentication -->
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Guardian\Filters\"/>
+    </ItemGroup>
 </Project>

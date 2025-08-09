@@ -1,26 +1,47 @@
 using System.Text.RegularExpressions;
-using Vogen;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct PhoneNumber
+public class PhoneNumber : ValueObject
 {
     public static readonly int MaxLength = 21;
 
-    private static readonly Regex PhoneNumberPattern = PhoneNumberRegex();
+    private static readonly Regex PhoneNumberPattern = new(
+        @"^(?:\+?55\s?)?(?:\(?(?:0?11|0?[12-9][0-9])\)?\s?)?(?:9\s?)?[2-9][0-9]{3}[\s\-]?[0-9]{4}$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    private static string NormalizeInput(string input)
+    private static readonly Regex SpecialCharactersRegex =
+        new(@"[\s\-\(\)\.]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private PhoneNumber(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return input;
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ValueObjectValidationException("Phone number is required.");
+        if (value.Length > 20) throw new ValueObjectValidationException("Phone number is too long.");
 
-        input = input.Trim();
-        if (input.Length > MaxLength || !PhoneNumberPattern.IsMatch(input)) return input;
+        if (!PhoneNumberPattern.IsMatch(value))
+            throw new ValueObjectValidationException("Phone number is not a valid phone number.");
 
-        var normalizedInput = SpecialCharactersRegex().Replace(input.Trim(), "");
+        Value = Normalize(value);
+    }
 
-        var parsedPhoneNumber = ParsePhoneNumber(normalizedInput);
-        if (parsedPhoneNumber is null) return input;
+    public string Value { get; }
+
+    private static string Normalize(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return value;
+
+        value = value.Trim();
+        if (value.Length > MaxLength || !PhoneNumberPattern.IsMatch(value)) return value;
+
+        var normalizedInput = SpecialCharactersRegex.Replace(value.Trim(), "");
+
+        var parsedPhoneNumber = ParseNormalizedPhoneNumber(normalizedInput);
+        if (parsedPhoneNumber is null) return value;
 
         var areaCode = parsedPhoneNumber.Value.AreaCode;
         var lineNumber = parsedPhoneNumber.Value.LocalNumber;
@@ -28,17 +49,26 @@ public readonly partial struct PhoneNumber
         return $"+55{areaCode}{lineNumber}";
     }
 
-    private static Validation Validate(string input)
+    public static PhoneNumber From(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Validation.Invalid("Phone number is required.");
-        if (input.Length > 20) return Validation.Invalid("Phone number is too long.");
-
-        return !PhoneNumberPattern.IsMatch(input)
-            ? Validation.Invalid("Phone number is not a valid phone number.")
-            : Validation.Ok;
+        return new PhoneNumber(value);
     }
 
-    private static (string AreaCode, string LocalNumber, bool IsMobile)? ParsePhoneNumber(string normalizedNumber)
+    public static Result<PhoneNumber> TryFrom(string value)
+    {
+        try
+        {
+            var phoneNumber = From(value);
+            return Result.Success(phoneNumber);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<PhoneNumber>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
+    }
+
+    private static (string AreaCode, string LocalNumber, bool IsMobile)? ParseNormalizedPhoneNumber(
+        string normalizedNumber)
     {
         // Remove country code if present
         if (normalizedNumber.StartsWith("+55"))
@@ -91,10 +121,8 @@ public readonly partial struct PhoneNumber
         return (areaCode, localNumber, isMobile);
     }
 
-    [GeneratedRegex(@"[\s\-\(\)\.]+", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex SpecialCharactersRegex();
-
-    [GeneratedRegex(@"^(?:\+?55\s?)?(?:\(?(?:0?11|0?[12-9][0-9])\)?\s?)?(?:9\s?)?[2-9][0-9]{3}[\s\-]?[0-9]{4}$",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex PhoneNumberRegex();
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+    }
 }

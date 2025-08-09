@@ -21,7 +21,7 @@ internal class SecurityEmailService(
 
     public async Task<Result> SendUnlockUserEmailAsync(string email, string passwordResetCode)
     {
-        var passwordResetPage = _clientUrls.ResetPassword;
+        var passwordResetPage = _clientUrls.PasswordReset;
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(passwordResetCode))
             throw new ArgumentException("'email' and 'unlockUserToken' are required.");
 
@@ -47,7 +47,7 @@ internal class SecurityEmailService(
 
     public async Task<Result> SendEmailConfirmationLinkAsync(string email, string emailConfirmationToken)
     {
-        var emailConfirmationPage = _clientUrls.ConfirmEmail;
+        var emailConfirmationPage = _clientUrls.EmailConfirmation;
         if (string.IsNullOrWhiteSpace(emailConfirmationPage))
             return Result.Failure(SecurityError.ClientUrlNotProvided);
 
@@ -69,7 +69,7 @@ internal class SecurityEmailService(
 
     public async Task<Result> SendPasswordResetCodeAsync(string email, string resetCode)
     {
-        var passwordResetPage = _clientUrls.ResetPassword;
+        var passwordResetPage = _clientUrls.PasswordReset;
         if (string.IsNullOrWhiteSpace(passwordResetPage))
             return Result.Failure(SecurityError.ClientUrlNotProvided);
 

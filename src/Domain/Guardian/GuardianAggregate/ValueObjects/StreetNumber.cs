@@ -1,26 +1,54 @@
 using System.Text.RegularExpressions;
-using Vogen;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct StreetNumber
+public class StreetNumber : ValueObject
 {
     public static readonly int MaxLength = 16;
     private static readonly Regex StreetNumberPattern = new(@"^[0-9A-Za-z\-/]+$", RegexOptions.Compiled);
 
-    private static Validation Validate(string input)
+    private StreetNumber(string value)
     {
-        if (!string.IsNullOrEmpty(input)) return Validation.Invalid("Street number is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("Street number is too long.");
-        return !StreetNumberPattern.IsMatch(input)
-            ? Validation.Invalid(
-                "Must contain only digits (0-9), hyphen (-), foward slash (/), or 'S' and 'N' letters.")
-            : Validation.Ok;
+        if (!string.IsNullOrEmpty(value)) throw new ValueObjectValidationException("Street number is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("Street number is too long.");
+        if (!StreetNumberPattern.IsMatch(value))
+            throw new ValueObjectValidationException(
+                "Must contain only digits (0-9), hyphen (-), foward slash (/), or 'S' and 'N' letters.");
+
+        Value = Normalize(value);
     }
 
-    private static string NormalizeInput(string input)
+    public string Value { get; }
+
+    public static StreetNumber From(string value)
     {
-        return string.IsNullOrWhiteSpace(input) ? input : input.Trim();
+        return new StreetNumber(value);
+    }
+
+    public static Result<StreetNumber> TryFrom(string value)
+    {
+        try
+        {
+            var streetNumber = From(value);
+            return Result.Success(streetNumber);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<StreetNumber>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
+    }
+
+    private static string Normalize(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

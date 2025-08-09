@@ -8,12 +8,13 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
 {
     public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        builder.HasKey(r => r.Id);
-        builder.Property(r => r.Id).HasMaxLength(36);
-        builder.Property(r => r.Token).HasMaxLength(64);
-        builder.HasIndex(r => r.Token).IsUnique();
-        builder.Property(r => r.TokenFamily).HasMaxLength(36);
+        builder.HasKey(rt => rt.Id);
+        builder.Property(rt => rt.Id).HasMaxLength(36);
+        builder.Property(rt => rt.Token).HasMaxLength(64);
+        builder.HasIndex(rt => rt.Token).IsUnique();
+        builder.Property(rt => rt.TokenFamily).HasMaxLength(36);
+        builder.Property(rt => rt.ExpiresAt).HasDefaultValue(DateTime.UtcNow);
 
-        builder.HasOne(r => r.User).WithMany().HasForeignKey(r => r.AccountId);
+        builder.HasOne(rt => rt.User).WithMany().HasForeignKey(rt => rt.AccountId);
     }
 }

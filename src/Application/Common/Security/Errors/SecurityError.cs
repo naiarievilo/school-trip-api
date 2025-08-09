@@ -1,4 +1,4 @@
-using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
 
 namespace SchoolTripApi.Application.Common.Security.Errors;
 

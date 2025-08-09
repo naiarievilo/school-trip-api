@@ -34,14 +34,13 @@ public class AccountController(IMediator mediator) : ControllerBase
         typeof(CreateAccountResult))]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult<CreateAccountResult>> CreateAccount(
-        [FromBody] CreateAccountCommand command,
-        CancellationToken cancellationToken)
+        [FromBody] CreateAccountCommand command)
     {
-        var createAccount = await mediator.Send(command, cancellationToken);
+        var createAccount = await mediator.Send(command);
         return createAccount.Succeeded
-            ? CreatedAtAction(nameof(GetAccountInfo), new { userId = createAccount.Value.AccountId },
+            ? CreatedAtAction(nameof(GetAccountInfo), new { accountId = createAccount.Value.AccountId },
                 createAccount.Value)
             : BadRequest(createAccount.Error);
     }
@@ -71,7 +70,7 @@ public class AccountController(IMediator mediator) : ControllerBase
         typeof(AuthenticationTokensResult))]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult<AuthenticationTokensResult>> ReauthenticateAccount(
         [FromBody] ReauthenticateAccountCommand command,
         CancellationToken cancellationToken)
@@ -88,7 +87,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     [SwaggerResponse(StatusCodes.Status200OK, "Sends password reset message successfully")]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult> SendResetPasswordCode(
         [FromBody] SendPasswordResetCodeCommand command,
         CancellationToken cancellationToken)
@@ -106,7 +105,7 @@ public class AccountController(IMediator mediator) : ControllerBase
         typeof(AuthenticateAccountResult))]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult<AuthenticateAccountResult>> ResetAccountPassword(
         [FromBody] ResetAccountPasswordCommand command,
         CancellationToken cancellationToken)
@@ -123,7 +122,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     [SwaggerResponse(StatusCodes.Status200OK, "Confirms account's email successfully")]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult> ConfirmAccountEmail(
         [FromBody] ConfirmAccountEmailCommand command,
         CancellationToken cancellationToken)
@@ -141,7 +140,7 @@ public class AccountController(IMediator mediator) : ControllerBase
         typeof(AccountDto))]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult<AccountDto>> GetAccountInfo(
         [FromRoute] string accountId,
         CancellationToken cancellationToken)
@@ -158,7 +157,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     [SwaggerResponse(StatusCodes.Status204NoContent, "Deletes account successfully")]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult> DeleteAccount([FromRoute] string accountId, CancellationToken cancellationToken)
     {
         var deleteAccount = await mediator.Send(DeleteAccountCommand.For(accountId), cancellationToken);
@@ -174,7 +173,7 @@ public class AccountController(IMediator mediator) : ControllerBase
         typeof(UpdateAccountEmailResult))]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult<UpdateAccountEmailResult>> UpdateAccountEmail(
         [FromBody] UpdateAccountEmailCommand command,
         [FromRoute] string accountId,
@@ -192,7 +191,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     [SwaggerResponse(StatusCodes.Status200OK, "Sends account email confirmation successfully")]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult> SendAccountEmailConfirmation(
         [FromRoute] string accountId,
         CancellationToken cancellationToken)
@@ -210,7 +209,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     [SwaggerResponse(StatusCodes.Status204NoContent, "Updates account password successfully")]
     [SwaggerResponse(StatusCodes.Status400BadRequest,
         "Request body validation or business rule validation failed",
-        typeof(Domain.Common.DTOs.Error))]
+        typeof(Domain.Common.Errors.Error))]
     public async Task<ActionResult> UpdateAccountPassword([FromBody] UpdateAccountPasswordCommand command,
         [FromRoute] string accountId,
         CancellationToken cancellationToken)

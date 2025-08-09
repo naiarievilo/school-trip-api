@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SchoolTripApi.Domain.Guardian.GuardianAggregate;
@@ -6,7 +7,7 @@ using SchoolTripApi.Infrastructure.Security.Entities;
 namespace SchoolTripApi.Infrastructure.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<Account>(options)
+    : IdentityDbContext<Account, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Guardian> Guardians { get; set; }

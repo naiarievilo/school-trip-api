@@ -1,8 +1,7 @@
 using SchoolTripApi.Application.Account;
-using SchoolTripApi.Application.Account.Commands.CreateAccount;
 using SchoolTripApi.Application.Account.Commands.UpdateAccountEmail;
 using SchoolTripApi.Domain.Common.DTOs;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
+using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Application.Common.Security.Abstractions;
 
@@ -12,8 +11,7 @@ public interface IAccountManager
 
     Task<Result<AccountDto>> GetAccountInfoAsync(AccountId accountId, CancellationToken cancellationToken);
 
-    Task<Result<AccountDto>> CreateAccountAsync(CreateAccountCommand command,
-        CancellationToken cancellationToken);
+    Task<Result<AccountDto>> CreateAccountAsync(string email, string password, CancellationToken cancellationToken);
 
     Task<Result> DeleteAccountAsync(AccountId accountId, CancellationToken cancellationToken);
 

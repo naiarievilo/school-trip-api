@@ -1,6 +1,7 @@
 using Mediator;
 using SchoolTripApi.Application.Common.Security.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Application.Account.Commands.DeleteAccount;
 
@@ -8,7 +9,11 @@ public class DeleteAccountHandler(IAccountManager accountManager) : ICommandHand
 {
     public async ValueTask<Result> Handle(DeleteAccountCommand command, CancellationToken cancellationToken)
     {
-        var deleteAccount = await accountManager.DeleteAccountAsync(command.AccountId, cancellationToken);
+        var convertToAccountId = AccountId.TryFrom(command.AccountId);
+        if (convertToAccountId.Failed) return Result.Failure(convertToAccountId.Error);
+        var accountId = convertToAccountId.Value;
+
+        var deleteAccount = await accountManager.DeleteAccountAsync(accountId, cancellationToken);
         return deleteAccount.Succeeded
             ? Result.Success()
             : Result.Failure(deleteAccount.Error);

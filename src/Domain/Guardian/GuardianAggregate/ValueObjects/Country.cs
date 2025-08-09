@@ -1,27 +1,45 @@
 using System.Text.RegularExpressions;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Common.Errors;
+using SchoolTripApi.Domain.Common.Exceptions;
 using SchoolTripApi.Domain.Common.Services;
-using Vogen;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
-[ValueObject<string>]
-public readonly partial struct Country
+public class Country : ValueObject
 {
     public static readonly int MaxLength = 64;
     private static readonly Regex CountryPattern = new(@"^[A-Za-zÀ-ÿ\s\-]+$", RegexOptions.Compiled);
 
-    private static string NormalizeInput(string input)
+    private Country(string value)
     {
-        return string.IsNullOrWhiteSpace(input) ? input : input.Trim();
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Country is required.");
+        if (value.Length > MaxLength) throw new ValueObjectValidationException("Country name is too long.");
+        if (!CountryPattern.IsMatch(value))
+            throw new ValueObjectValidationException("Country name must contain only letters, spaces, and hyphen.");
+
+        Value = value;
     }
 
-    private static Validation Validate(string input)
+    public string Value { get; }
+
+    public static Country From(string value)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Validation.Invalid("Country is required.");
-        if (input.Length > MaxLength) return Validation.Invalid("Country name is too long.");
-        return !CountryPattern.IsMatch(input)
-            ? Validation.Invalid("Country name must contain only letters, spaces, and hyphen.")
-            : Validation.Ok;
+        return new Country(value);
+    }
+
+    public static Result<Country> TryFrom(string value)
+    {
+        try
+        {
+            var country = From(value);
+            return Result.Success(country);
+        }
+        catch (ValueObjectValidationException ex)
+        {
+            return Result.Failure<Country>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
+        }
     }
 
     public bool Equals(string? other)
@@ -32,5 +50,10 @@ public readonly partial struct Country
     public bool Equals(Country other)
     {
         return PortugueseStringNormalizer.AreEquivalent(Value, other.Value);
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

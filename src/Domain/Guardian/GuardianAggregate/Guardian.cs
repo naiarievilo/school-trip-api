@@ -1,5 +1,4 @@
 using SchoolTripApi.Domain.Common.Abstractions;
-using SchoolTripApi.Domain.Common.Services;
 using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Domain.Guardian.GuardianAggregate;
@@ -7,25 +6,31 @@ namespace SchoolTripApi.Domain.Guardian.GuardianAggregate;
 public class Guardian : AuditableEntity<GuardianId>, IAggregateRoot
 {
     // For EF Core
-    public Guardian()
+    protected Guardian()
     {
+        AccountId = null!;
     }
 
-    public Guardian(AccountId accountId, FullName fullName, Cpf? cpf = null, Address? address = null,
-        EmergencyContact? emergencyContact = null)
+    private Guardian(AccountId accountId, FullName fullName, Cpf? cpf, Address? address,
+        EmergencyContact? emergencyContact, string createdBy)
     {
-        Id = GuidFactory<GuardianId>.NewSequential();
+        Id = GuardianId.From(Guid.NewGuid());
         AccountId = accountId;
         FullName = fullName;
         Cpf = cpf;
         Address = address;
         EmergencyContact = emergencyContact;
         CreatedAt = DateTimeOffset.UtcNow;
-        CreatedBy = FullName.Value;
+        CreatedBy = createdBy;
+    }
+
+    public Guardian(AccountId accountId, FullName fullName, string createdBy) : this(accountId, fullName, null, null,
+        null, createdBy)
+    {
     }
 
     public AccountId AccountId { get; private set; }
-    public FullName FullName { get; }
+    public FullName? FullName { get; }
     public Cpf? Cpf { get; private set; }
     public Address? Address { get; private set; }
     public EmergencyContact? EmergencyContact { get; private set; }
