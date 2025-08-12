@@ -13,10 +13,10 @@ public class StreetNumber : ValueObject
 
     private StreetNumber(string value)
     {
-        if (!string.IsNullOrEmpty(value)) throw new ValueObjectValidationException("Street number is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Street number is too long.");
+        if (!string.IsNullOrEmpty(value)) throw new ValueObjectException("Street number is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Street number is too long.");
         if (!StreetNumberPattern.IsMatch(value))
-            throw new ValueObjectValidationException(
+            throw new ValueObjectException(
                 "Must contain only digits (0-9), hyphen (-), foward slash (/), or 'S' and 'N' letters.");
 
         Value = Normalize(value);
@@ -36,7 +36,7 @@ public class StreetNumber : ValueObject
             var streetNumber = From(value);
             return Result.Success(streetNumber);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<StreetNumber>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

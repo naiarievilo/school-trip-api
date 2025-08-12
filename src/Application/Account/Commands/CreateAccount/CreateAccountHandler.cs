@@ -18,10 +18,7 @@ public class CreateAccountHandler(
     {
         var email = command.Email;
         var password = command.Password;
-
-        var convertGuardianFullName = FullName.TryFrom(command.FullName);
-        if (convertGuardianFullName.Failed) return Result.Failure<CreateAccountResult>(convertGuardianFullName.Error);
-        var guardianFullName = convertGuardianFullName.Value;
+        var guardianFullName = command.FullName;
 
         var createGuardianAccount = await accountManager.CreateAccountAsync(email, password, cancellationToken);
         if (createGuardianAccount.Failed) return Result.Failure<CreateAccountResult>(createGuardianAccount.Error);

@@ -20,11 +20,11 @@ public class PhoneNumber : ValueObject
     private PhoneNumber(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ValueObjectValidationException("Phone number is required.");
-        if (value.Length > 20) throw new ValueObjectValidationException("Phone number is too long.");
+            throw new ValueObjectException("Phone number is required.");
+        if (value.Length > 20) throw new ValueObjectException("Phone number is too long.");
 
         if (!PhoneNumberPattern.IsMatch(value))
-            throw new ValueObjectValidationException("Phone number is not a valid phone number.");
+            throw new ValueObjectException("Phone number is not a valid phone number.");
 
         Value = Normalize(value);
     }
@@ -61,7 +61,7 @@ public class PhoneNumber : ValueObject
             var phoneNumber = From(value);
             return Result.Success(phoneNumber);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<PhoneNumber>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

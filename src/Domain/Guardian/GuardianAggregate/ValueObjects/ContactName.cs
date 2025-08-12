@@ -15,10 +15,10 @@ public class ContactName : ValueObject
     private ContactName(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ValueObjectValidationException("Contact name is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Contact name is too long.");
+            throw new ValueObjectException("Contact name is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Contact name is too long.");
         if (!ContactNamePattern.IsMatch(value))
-            throw new ValueObjectValidationException(
+            throw new ValueObjectException(
                 "Contact name must contain only letters, hyphens, and apostrophes.");
 
         Value = value;
@@ -38,7 +38,7 @@ public class ContactName : ValueObject
             var contactName = From(value);
             return Result.Success(contactName);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<ContactName>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

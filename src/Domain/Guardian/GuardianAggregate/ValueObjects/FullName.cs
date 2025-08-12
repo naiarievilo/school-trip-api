@@ -13,10 +13,10 @@ public class FullName : ValueObject
 
     private FullName(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Full name is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Full name is too long.");
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("Full name is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Full name is too long.");
         if (!FullNamePattern.IsMatch(value))
-            throw new ValueObjectValidationException("Full name must contain letters, hyphens, and apostrophes only.");
+            throw new ValueObjectException("Full name must contain letters, hyphens, and apostrophes only.");
 
         Value = Normalize(value);
     }
@@ -35,7 +35,7 @@ public class FullName : ValueObject
             var fullName = From(value);
             return Result.Success(fullName);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<FullName>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

@@ -14,11 +14,11 @@ public class City : ValueObject
 
     private City(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("City is required.");
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("City is required.");
         value = value.Trim();
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("City name is too long.");
+        if (value.Length > MaxLength) throw new ValueObjectException("City name is too long.");
         if (!CityPattern.IsMatch(value))
-            throw new ValueObjectValidationException(
+            throw new ValueObjectException(
                 "City name must contain only letters, spaces, hyphens, periods, or apostrophes.");
 
         Value = value;
@@ -38,7 +38,7 @@ public class City : ValueObject
             var city = From(value);
             return Result.Success(city);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<City>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

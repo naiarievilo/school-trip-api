@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Mediator;
 using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Application.Account.Commands.CreateAccount;
 
@@ -8,7 +9,7 @@ public class CreateAccountCommand(
     string email,
     string password,
     string confirmPassword,
-    string fullName)
+    FullName fullName)
     : ICommand<Result<CreateAccountResult>>
 {
     [EmailAddress(ErrorMessage = "Email provided must be valid.")]
@@ -22,5 +23,5 @@ public class CreateAccountCommand(
     public string ConfirmPassword { get; } = confirmPassword;
 
     [Required(ErrorMessage = "Full name is required.")]
-    public string FullName { get; } = fullName;
+    public FullName FullName { get; } = fullName;
 }

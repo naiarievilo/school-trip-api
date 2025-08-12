@@ -14,10 +14,10 @@ public class Street : ValueObject
 
     private Street(string value)
     {
-        if (!string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Street is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Street name is too long.");
+        if (!string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("Street is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Street name is too long.");
         if (!StreetPattern.IsMatch(value))
-            throw new ValueObjectValidationException(
+            throw new ValueObjectException(
                 "Street should only contain letters, spaces, hyphens, commas, and apostrophes.");
 
         Value = Normalize(value);
@@ -37,7 +37,7 @@ public class Street : ValueObject
             var street = From(value);
             return Result.Success(street);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<Street>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

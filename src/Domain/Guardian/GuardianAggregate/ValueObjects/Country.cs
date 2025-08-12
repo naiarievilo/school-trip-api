@@ -14,10 +14,10 @@ public class Country : ValueObject
 
     private Country(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Country is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Country name is too long.");
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("Country is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Country name is too long.");
         if (!CountryPattern.IsMatch(value))
-            throw new ValueObjectValidationException("Country name must contain only letters, spaces, and hyphen.");
+            throw new ValueObjectException("Country name must contain only letters, spaces, and hyphen.");
 
         Value = value;
     }
@@ -36,7 +36,7 @@ public class Country : ValueObject
             var country = From(value);
             return Result.Success(country);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<Country>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

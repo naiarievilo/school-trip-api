@@ -14,10 +14,10 @@ public class State : ValueObject
 
     private State(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("State is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("State name is too long.");
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("State is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("State name is too long.");
         if (!StatePattern.IsMatch(value))
-            throw new ValueObjectValidationException(
+            throw new ValueObjectException(
                 "State name must contain only letters, spaces, hyphens, periods, and apostrophes.");
 
         Value = Normalize(value);
@@ -42,7 +42,7 @@ public class State : ValueObject
             var state = From(value);
             return Result.Success(state);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<State>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

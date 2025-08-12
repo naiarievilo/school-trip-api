@@ -15,10 +15,10 @@ public class Neighborhood : ValueObject
     private Neighborhood(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ValueObjectValidationException("Neighborhood is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Neighborhood name is too long.");
+            throw new ValueObjectException("Neighborhood is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Neighborhood name is too long.");
         if (!NeighborhoodPattern.IsMatch(value))
-            throw new ValueObjectValidationException(
+            throw new ValueObjectException(
                 "Neighborhood name must contain only letters, hyphens, periods, and apostrophes.");
 
         Value = Normalize(value);
@@ -38,7 +38,7 @@ public class Neighborhood : ValueObject
             var neighborhood = From(value);
             return Result.Success(neighborhood);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<Neighborhood>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

@@ -24,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Guardian\"/>
+        <Folder Include="Guardian\Commands\" />
+        <Folder Include="Guardian\Queries\" />
     </ItemGroup>
 </Project>

@@ -25,7 +25,7 @@ public class GuardianId : ValueObject
         {
             return Result.Success((GuardianId)value);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<GuardianId>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }
@@ -39,6 +39,6 @@ public class GuardianId : ValueObject
     public static explicit operator GuardianId(string? value)
     {
         if (Guid.TryParse(value, out var parsedGuardianId)) return From(parsedGuardianId);
-        throw new ValueObjectValidationException("Guid provided couldn't be converted to 'AccountId' value object.");
+        throw new ValueObjectException("Guid provided couldn't be converted to 'AccountId' value object.");
     }
 }

@@ -14,9 +14,9 @@ public class Cpf : ValueObject
 
     private Cpf(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("CPF is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("CPF is too long.");
-        if (!CpfPattern.IsMatch(value)) throw new ValueObjectValidationException("CPF provided is invalid.");
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("CPF is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("CPF is too long.");
+        if (!CpfPattern.IsMatch(value)) throw new ValueObjectException("CPF provided is invalid.");
 
         Value = Normalize(value);
     }
@@ -35,7 +35,7 @@ public class Cpf : ValueObject
             var cpf = From(value);
             return Result.Success(cpf);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<Cpf>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }
@@ -60,7 +60,7 @@ public class Cpf : ValueObject
 
         var normalizedCpf = CpfDigits(value);
         if (IsAllSameDigits(normalizedCpf) || !IsValidCpf(normalizedCpf))
-            throw new ValueObjectValidationException("CPF provided is invalid.");
+            throw new ValueObjectException("CPF provided is invalid.");
 
         return FormattedCpf(normalizedCpf);
     }

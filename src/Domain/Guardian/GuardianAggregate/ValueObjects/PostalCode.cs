@@ -13,10 +13,10 @@ public class PostalCode : ValueObject
 
     private PostalCode(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectValidationException("Postal code is required.");
-        if (value.Length > MaxLength) throw new ValueObjectValidationException("Postal code is too long.");
+        if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("Postal code is required.");
+        if (value.Length > MaxLength) throw new ValueObjectException("Postal code is too long.");
         if (!CepPattern.IsMatch(value))
-            throw new ValueObjectValidationException("CEP must only contain digits and an optional hyphen.");
+            throw new ValueObjectException("CEP must only contain digits and an optional hyphen.");
 
         Value = Normalize(value);
     }
@@ -35,7 +35,7 @@ public class PostalCode : ValueObject
             var postalCode = From(value);
             return Result.Success(postalCode);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<PostalCode>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }

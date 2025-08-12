@@ -25,7 +25,7 @@ public class AccountId : ValueObject
         {
             return Result.Success((AccountId)value);
         }
-        catch (ValueObjectValidationException ex)
+        catch (ValueObjectException ex)
         {
             return Result.Failure<AccountId>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
         }
@@ -34,7 +34,7 @@ public class AccountId : ValueObject
     public static explicit operator AccountId(string? value)
     {
         if (Guid.TryParse(value, out var parsedAccountId)) return From(parsedAccountId);
-        throw new ValueObjectValidationException("Guid provided couldn't be converted to 'AccountId' value object.");
+        throw new ValueObjectException("Guid provided couldn't be converted to 'AccountId' value object.");
     }
 
     protected override IEnumerable<object> GetEqualityComponents()
