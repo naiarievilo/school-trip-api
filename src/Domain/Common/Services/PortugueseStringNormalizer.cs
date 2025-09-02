@@ -6,7 +6,7 @@ namespace SchoolTripApi.Domain.Common.Services;
 public static class PortugueseStringNormalizer
 {
     // Method to remove accents from a Portuguese string
-    public static string RemoveAccents(string text)
+    private static string RemoveAccents(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;
@@ -18,7 +18,7 @@ public static class PortugueseStringNormalizer
 
         foreach (var c in normalizedString)
         {
-            // Keep only characters that are NOT NonSpacingMark (diacritics/accents)
+            // Keep only characters that are NOT 'NonSpacingMark' (i.e., diacritics/accents)
             var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
             if (unicodeCategory != UnicodeCategory.NonSpacingMark) stringBuilder.Append(c);
         }
@@ -27,8 +27,8 @@ public static class PortugueseStringNormalizer
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 
-    // Method to normalize for comparison (case-insensitive, accent-insensitive)
-    public static string NormalizeForComparison(string text)
+    // Method to normalize for comparison (i.e., case-insensitive, accent-insensitive)
+    private static string NormalizeForComparison(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;
@@ -39,10 +39,7 @@ public static class PortugueseStringNormalizer
     // Method to normalize by preserving casing but removing accents
     public static string NormalizePreservingCase(string text)
     {
-        if (string.IsNullOrEmpty(text))
-            return text;
-
-        return RemoveAccents(text.Trim());
+        return string.IsNullOrEmpty(text) ? text : RemoveAccents(text.Trim());
     }
 
     // Method to check if two Portuguese strings are equivalent (ignoring accents and case)

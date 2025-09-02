@@ -1,10 +1,10 @@
 using AutoMapper;
-using SchoolTripApi.Application.Account;
+using SchoolTripApi.Application.Accounts.DTOs;
 using SchoolTripApi.Infrastructure.Security.Entities;
 
 namespace SchoolTripApi.Infrastructure.Security.Mapping;
 
-public class AccountMappingProfile : Profile
+internal sealed class AccountMappingProfile : Profile
 {
     public AccountMappingProfile()
     {

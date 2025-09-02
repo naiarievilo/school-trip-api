@@ -1,6 +1,6 @@
 namespace SchoolTripApi.Infrastructure.Security.Settings;
 
-internal class JwtSettings
+internal sealed class JwtSettings
 {
     public required string Secret { get; init; }
     public required string Issuer { get; init; }

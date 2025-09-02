@@ -7,7 +7,7 @@ using SchoolTripApi.Infrastructure.Security.Entities;
 
 namespace SchoolTripApi.Infrastructure.Security.Tasks;
 
-public sealed class DeleteUnverifiedUsers(ILogger<DeleteUnverifiedUsers> logger, IServiceProvider serviceProvider)
+internal sealed class DeleteUnverifiedUsers(ILogger<DeleteUnverifiedUsers> logger, IServiceProvider serviceProvider)
     : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromDays(1);

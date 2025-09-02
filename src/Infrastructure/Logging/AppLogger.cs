@@ -3,7 +3,7 @@ using SchoolTripApi.Application.Common.Abstractions;
 
 namespace SchoolTripApi.Infrastructure.Logging;
 
-public class AppLogger<T>(ILoggerFactory loggerFactory) : IAppLogger<T>
+internal sealed class AppLogger<T>(ILoggerFactory loggerFactory) : IAppLogger<T>
 {
     private readonly ILogger<T> _logger = loggerFactory.CreateLogger<T>();
 

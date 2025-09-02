@@ -8,7 +8,6 @@ public class ValueObjectSchemaFilter : ISchemaFilter
 {
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
-        // Check if the type is a ValueObject
         if (IsValueObject(context.Type))
         {
             // Get the Value property (assuming single-property value objects)

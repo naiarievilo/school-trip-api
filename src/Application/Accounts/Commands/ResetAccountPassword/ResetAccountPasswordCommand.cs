@@ -1,0 +1,29 @@
+using System.ComponentModel.DataAnnotations;
+using Mediator;
+using SchoolTripApi.Application.Accounts.Commands.AuthenticateAccount;
+using SchoolTripApi.Domain.Common.DTOs;
+
+namespace SchoolTripApi.Application.Accounts.Commands.ResetAccountPassword;
+
+public sealed class ResetAccountPasswordCommand(
+    string email,
+    string resetCode,
+    string newPassword,
+    string confirmNewPassword)
+    : ICommand<Result<AuthenticateAccountResult>>
+{
+    [EmailAddress(ErrorMessage = "Email provided must be valid.")]
+    public string Email { get; } = email;
+
+    [Required(ErrorMessage = "Reset code is required.")]
+    public string ResetCode { get; } = resetCode;
+
+    [Required(ErrorMessage = "Password is required.")]
+    [DataType(DataType.Password)]
+    public string NewPassword { get; } = newPassword;
+
+    [Required(ErrorMessage = "New password confirmation is required.")]
+    [DataType(DataType.Password)]
+    [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
+    public string ConfirmNewPassword { get; } = confirmNewPassword;
+}

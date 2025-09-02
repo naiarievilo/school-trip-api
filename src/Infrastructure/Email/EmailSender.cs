@@ -2,23 +2,14 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
 using SchoolTripApi.Application.Common.Abstractions;
-using SchoolTripApi.Application.Common.Email.Errors;
-using SchoolTripApi.Application.Common.Email.Interfaces;
-using SchoolTripApi.Application.Common.Email.Settings;
 using SchoolTripApi.Domain.Common.DTOs;
 
 namespace SchoolTripApi.Infrastructure.Email;
 
-internal class EmailSender : IEmailSender
+internal sealed class EmailSender(IOptions<EmailSettings> mailingSettings, IAppLogger<EmailSender> logger)
+    : IEmailSender
 {
-    private readonly EmailSettings _emailSettings;
-    private readonly IAppLogger<EmailSender> _logger;
-
-    public EmailSender(IOptions<EmailSettings> mailingSettings, IAppLogger<EmailSender> logger)
-    {
-        _emailSettings = mailingSettings.Value;
-        _logger = logger;
-    }
+    private readonly EmailSettings _emailSettings = mailingSettings.Value;
 
     public async Task<Result> SendEmailAsync(string email, string subject, string htmlMessage)
     {
@@ -44,7 +35,7 @@ internal class EmailSender : IEmailSender
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error sending email to '{email}'.");
+            logger.LogError(ex, $"Error sending email to '{email}'.");
             return Result.Failure(EmailError.EmailNotSent);
         }
     }

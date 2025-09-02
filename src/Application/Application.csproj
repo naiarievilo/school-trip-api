@@ -22,9 +22,4 @@
         <!-- Entity Framework Core -->
         <PackageReference Include="Ardalis.Specification.EntityFrameworkCore"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Guardian\Commands\" />
-        <Folder Include="Guardian\Queries\" />
-    </ItemGroup>
 </Project>

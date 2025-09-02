@@ -2,7 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
-using SchoolTripApi.WebApi.Account.Filters;
+using SchoolTripApi.WebApi.Accounts.Filters;
 using SchoolTripApi.WebApi.Common;
 using SchoolTripApi.WebApi.Common.JsonConverters;
 
@@ -19,8 +19,8 @@ public static class DependencyInjection
         services.AddControllers(opts => opts.Filters.Add<ValueObjectExceptionFilter>())
             .AddJsonOptions(opts =>
             {
-                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                opts.JsonSerializerOptions.Converters.Add(new CamelCaseValidationProblemDetailsConverter());
+                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+                opts.JsonSerializerOptions.Converters.Add(new SnakeCaseValidationProblemDetailsConverter());
                 opts.JsonSerializerOptions.Converters.Add(new ValueObjectJsonConverterFactory());
             });
     }

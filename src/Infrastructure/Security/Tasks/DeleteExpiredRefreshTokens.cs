@@ -7,7 +7,7 @@ using SchoolTripApi.Infrastructure.Security.Specifications;
 
 namespace SchoolTripApi.Infrastructure.Security.Tasks;
 
-public sealed class DeleteExpiredRefreshTokens(
+internal sealed class DeleteExpiredRefreshTokens(
     ILogger<DeleteExpiredRefreshTokens> logger,
     IServiceProvider serviceProvider)
     : BackgroundService
@@ -37,7 +37,7 @@ public sealed class DeleteExpiredRefreshTokens(
 
         var refreshTokenRepository = scope.ServiceProvider.GetRequiredService<IRepository<RefreshToken>>();
 
-        var spec = new RefreshTokenByExpirationDate();
+        var spec = new RefreshTokenByExpirationDateSpec();
         IEnumerable<RefreshToken> expiredRefreshTokens =
             await refreshTokenRepository.ListAsync(spec, cancellationToken);
 

@@ -1,9 +1,9 @@
 using Ardalis.Specification;
-using SchoolTripApi.Domain.Guardian.GuardianAggregate;
+using SchoolTripApi.Domain.GuardianAggregate;
 
 namespace SchoolTripApi.Infrastructure.Data.Repositories;
 
-public class GuardianRepository : Repository<Guardian>
+internal sealed class GuardianRepository : Repository<Guardian>
 {
     public GuardianRepository(AppDbContext dbContext) : base(dbContext)
     {

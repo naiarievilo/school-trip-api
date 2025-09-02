@@ -1,5 +1,6 @@
 using SchoolTripApi.Application;
 using SchoolTripApi.Infrastructure;
+using SchoolTripApi.Infrastructure.Data;
 using SchoolTripApi.WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,8 @@ builder.Services.AddInfrastructureConfiguration(configuration);
 builder.Services.AddWebApiConfiguration(configuration);
 
 var app = builder.Build();
+
+await app.SeedDatabases();
 
 var env = app.Environment;
 if (env.IsDevelopment())

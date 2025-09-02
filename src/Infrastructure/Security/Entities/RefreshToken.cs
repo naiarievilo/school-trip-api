@@ -2,7 +2,7 @@ using SchoolTripApi.Domain.Common.Abstractions;
 
 namespace SchoolTripApi.Infrastructure.Security.Entities;
 
-public class RefreshToken : Entity<Guid>, IAggregateRoot
+internal class RefreshToken : Entity<Guid>, IAggregateRoot
 {
     public RefreshToken(Guid accountId, string token, string tokenFamily, DateTime expiresAt)
     {

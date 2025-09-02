@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
+using SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
 
 namespace SchoolTripApi.Infrastructure.Data.Converters;
 
-public class GuardianIdConverter()
+internal sealed class GuardianIdConverter()
     : ValueConverter<GuardianId, Guid>(guardianId => guardianId.Value, guid => GuardianId.From(guid));

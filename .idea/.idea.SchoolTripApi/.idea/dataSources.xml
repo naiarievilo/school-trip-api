@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="dot-net-five-api-demo@localhost" uuid="4728f1a5-1c97-4f28-8e24-16acfc3e8b24">
+    <data-source source="LOCAL" name="school-trip-api@localhost" uuid="21cb3087-68d1-4e9a-871f-9141e7ec9b20">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <configured-by-url>true</configured-by-url>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost/dot-net-five-api-demo?password=secure-password&amp;user=postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost/school-trip-api?password=secure-password&amp;user=postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

@@ -1,19 +1,23 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SchoolTripApi.Application.Account;
-using SchoolTripApi.Application.Account.Commands.UpdateAccountEmail;
+using SchoolTripApi.Application.Accounts.Abstractions;
+using SchoolTripApi.Application.Accounts.Commands.UpdateAccountEmail;
+using SchoolTripApi.Application.Accounts.DTOs;
+using SchoolTripApi.Application.Accounts.Errors;
 using SchoolTripApi.Application.Common.Abstractions;
-using SchoolTripApi.Application.Common.Security.Abstractions;
+using SchoolTripApi.Application.Common.DTOs;
 using SchoolTripApi.Domain.Common.DTOs;
-using SchoolTripApi.Domain.Guardian.GuardianAggregate;
+using SchoolTripApi.Domain.GuardianAggregate;
+using SchoolTripApi.Infrastructure.Data;
 using SchoolTripApi.Infrastructure.Security.Entities;
-using AccountId = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.AccountId;
+using AccountId = SchoolTripApi.Domain.GuardianAggregate.ValueObjects.AccountId;
 
 namespace SchoolTripApi.Infrastructure.Security.Services;
 
-public class AccountManager(
+internal sealed class AccountManager(
     UserManager<Account> userManager,
+    AppDbContext context,
     IAppLogger<AccountManager> logger,
     IMapper mapper)
     : IAccountManager
@@ -49,21 +53,51 @@ public class AccountManager(
     public async Task<Result<AccountDto>> GetAccountInfoAsync(string email,
         CancellationToken cancellationToken = default)
     {
-        var userAccount = await userManager.FindByEmailAsync(email);
-        if (userAccount is null) return Result.Failure<AccountDto>(AccountError.UserNotFound(email));
+        var account = await userManager.FindByEmailAsync(email);
+        if (account is null) return Result.Failure<AccountDto>(AccountError.UserNotFound(email));
 
-        var userAccountDto = mapper.Map<AccountDto>(userAccount);
-        return Result.Success(userAccountDto);
+        var accountDto = await BuildAccountDto(account);
+        return Result.Success(accountDto);
+    }
+
+    public async Task<Result<PageOf<AccountDto>>> GetAccountsInfoAsync(PaginationDetails paginationDetails,
+        CancellationToken cancellationToken)
+    {
+        var pageNumber = paginationDetails.PageNumber;
+        var pageSize = paginationDetails.PageSize;
+
+        List<Account> requestedAccountPage;
+        int totalCount;
+        int totalPages;
+
+        try
+        {
+            totalCount = await context.Users.CountAsync(cancellationToken);
+            totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            requestedAccountPage = await context.Users
+                .OrderBy(u => u.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to retrieve accounts info: {1}", ex.Message);
+            return Result.Failure<PageOf<AccountDto>>(AccountError.FailedToRetrieveAccountsInfo);
+        }
+
+        var accountDtoPage = requestedAccountPage.Select(mapper.Map<AccountDto>).ToList();
+        return Result.Success(new PageOf<AccountDto>(accountDtoPage, pageNumber, pageSize, totalCount, totalPages));
     }
 
     public async Task<Result<AccountDto>> GetAccountInfoAsync(AccountId accountId, CancellationToken cancellationToken)
     {
-        var userAccount =
-            await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId.Value), cancellationToken);
-        if (userAccount is null) return Result.Failure<AccountDto>(AccountError.UserNotFound(accountId.Value));
+        var account = await userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(accountId.Value), cancellationToken);
+        if (account is null) return Result.Failure<AccountDto>(AccountError.UserNotFound(accountId.Value));
 
-        var userAccountDto = mapper.Map<AccountDto>(userAccount);
-        return Result.Success(userAccountDto);
+        var accountDto = await BuildAccountDto(account);
+        return Result.Success(accountDto);
     }
 
     public async Task<Result> UpdateAccountPasswordAsync(AccountId accountId, string currentPassword,
@@ -153,8 +187,24 @@ public class AccountManager(
         return string.Join(" ", errors.Select(e => e.Description));
     }
 
-    private string GetEmailUserName(string email)
+    public static string GetEmailUserName(string email)
     {
         return email[..email.IndexOf('@')];
+    }
+
+    private async Task<AccountDto> BuildAccountDto(Account account)
+    {
+        var accountRoles = await userManager.GetRolesAsync(account);
+        var accountDto = new AccountDto
+        {
+            Id = account.Id,
+            // Email is required
+            Email = account.Email!,
+            IsEmailConfirmed = account.EmailConfirmed,
+            PhoneNumber = account.PhoneNumber,
+            Roles = accountRoles.ToList()
+        };
+
+        return accountDto;
     }
 }

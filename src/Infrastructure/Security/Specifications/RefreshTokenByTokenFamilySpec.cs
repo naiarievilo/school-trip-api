@@ -3,7 +3,7 @@ using SchoolTripApi.Infrastructure.Security.Entities;
 
 namespace SchoolTripApi.Infrastructure.Security.Specifications;
 
-public sealed class RefreshTokenByTokenFamilySpec : Specification<RefreshToken>
+internal sealed class RefreshTokenByTokenFamilySpec : Specification<RefreshToken>
 {
     public RefreshTokenByTokenFamilySpec(string tokenFamily)
     {

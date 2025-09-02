@@ -1,15 +1,14 @@
 using System.Text.Encodings.Web;
 using Microsoft.Extensions.Options;
-using SchoolTripApi.Application.Common.Email.Interfaces;
-using SchoolTripApi.Application.Common.Email.Settings;
-using SchoolTripApi.Application.Common.Security.Abstractions;
-using SchoolTripApi.Application.Common.Security.Errors;
+using SchoolTripApi.Application.Accounts.Abstractions;
+using SchoolTripApi.Application.Common.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Infrastructure.Email;
 using SchoolTripApi.Infrastructure.Security.Settings;
 
 namespace SchoolTripApi.Infrastructure.Security.Services;
 
-internal class SecurityEmailService(
+internal sealed class SecurityEmailService(
     IEmailSender emailSender,
     IOptions<ClientSettings> clientSettings,
     IOptions<EmailSettings> mailingSettings)

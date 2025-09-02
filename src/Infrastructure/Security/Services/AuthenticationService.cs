@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Identity;
-using SchoolTripApi.Application.Account;
-using SchoolTripApi.Application.Common.Security.Abstractions;
-using SchoolTripApi.Application.Common.Security.DTOs;
+using SchoolTripApi.Application.Accounts.Abstractions;
+using SchoolTripApi.Application.Accounts.DTOs;
+using SchoolTripApi.Application.Accounts.Errors;
 using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Infrastructure.Security.Entities;
 
 namespace SchoolTripApi.Infrastructure.Security.Services;
 
-public class AuthenticationService(
+internal sealed class AuthenticationService(
     ISecurityTokenProvider securityTokenProvider,
     UserManager<Account> userManager,
     SignInManager<Account> signInManager)

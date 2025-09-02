@@ -6,11 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SchoolTripApi.Application.Accounts.Abstractions;
 using SchoolTripApi.Application.Common.Abstractions;
-using SchoolTripApi.Application.Common.Email.Interfaces;
-using SchoolTripApi.Application.Common.Email.Settings;
-using SchoolTripApi.Application.Common.Security.Abstractions;
-using SchoolTripApi.Domain.Guardian.GuardianAggregate;
+using SchoolTripApi.Domain.GuardianAggregate;
 using SchoolTripApi.Infrastructure.Data;
 using SchoolTripApi.Infrastructure.Data.Repositories;
 using SchoolTripApi.Infrastructure.Email;
@@ -69,7 +67,9 @@ public static class DependencyInjection
 
                 opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
             })
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<AppDbContext>()
+            .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
@@ -141,6 +141,9 @@ public static class DependencyInjection
             });
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+        var adminSettingsSection = configuration.GetSection("AdminSettings");
+        services.Configure<AdminSettings>(adminSettingsSection);
     }
 
     private static void AddLogging(this IServiceCollection services)

@@ -110,7 +110,7 @@ public class ValueObjectJsonConverter<T> : JsonConverter<T> where T : ValueObjec
         var properties = new Dictionary<string, object?>();
         var propertiesInfo = typeToConvert.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanRead && p.GetIndexParameters().Length == 0)
-            .ToDictionary(p => p.Name.ToLower(), p => p);
+            .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
 
         var currentPropertyName = string.Empty;
         while (reader.Read())

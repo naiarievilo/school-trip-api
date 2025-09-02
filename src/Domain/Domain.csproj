@@ -2,4 +2,7 @@
     <PropertyGroup>
         <RootNamespace>SchoolTripApi.Domain</RootNamespace>
     </PropertyGroup>
+    <ItemGroup>
+      <Folder Include="StudentAggregate\ValueObjects\" />
+    </ItemGroup>
 </Project>

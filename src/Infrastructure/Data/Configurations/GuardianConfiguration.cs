@@ -1,21 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SchoolTripApi.Domain.Guardian.GuardianAggregate;
-using SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects;
+using SchoolTripApi.Domain.GuardianAggregate;
+using SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
 using SchoolTripApi.Infrastructure.Data.Converters;
-using City = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.City;
-using ContactName = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.ContactName;
-using Country = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.Country;
-using Neighborhood = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.Neighborhood;
-using PhoneNumber = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.PhoneNumber;
-using PostalCode = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.PostalCode;
-using State = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.State;
-using Street = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.Street;
-using StreetNumber = SchoolTripApi.Domain.Guardian.GuardianAggregate.ValueObjects.StreetNumber;
+using City = SchoolTripApi.Domain.Common.ValueObjects.City;
+using ContactName = SchoolTripApi.Domain.GuardianAggregate.ValueObjects.ContactName;
+using Country = SchoolTripApi.Domain.Common.ValueObjects.Country;
+using Neighborhood = SchoolTripApi.Domain.Common.ValueObjects.Neighborhood;
+using PhoneNumber = SchoolTripApi.Domain.GuardianAggregate.ValueObjects.PhoneNumber;
+using PostalCode = SchoolTripApi.Domain.Common.ValueObjects.PostalCode;
+using State = SchoolTripApi.Domain.Common.ValueObjects.State;
+using Street = SchoolTripApi.Domain.Common.ValueObjects.Street;
+using StreetNumber = SchoolTripApi.Domain.Common.ValueObjects.StreetNumber;
 
 namespace SchoolTripApi.Infrastructure.Data.Configurations;
 
-public class GuardianConfiguration : IEntityTypeConfiguration<Guardian>
+internal sealed class GuardianConfiguration : IEntityTypeConfiguration<Guardian>
 {
     public void Configure(EntityTypeBuilder<Guardian> builder)
     {

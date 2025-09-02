@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using SchoolTripApi.Application.Account;
+using SchoolTripApi.Application.Accounts.Abstractions;
+using SchoolTripApi.Application.Accounts.DTOs;
+using SchoolTripApi.Application.Accounts.Errors;
 using SchoolTripApi.Application.Common.Abstractions;
-using SchoolTripApi.Application.Common.Security.Abstractions;
-using SchoolTripApi.Application.Common.Security.DTOs;
-using SchoolTripApi.Application.Common.Security.Errors;
 using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Infrastructure.Security.Entities;
 using SchoolTripApi.Infrastructure.Security.Settings;
@@ -41,9 +40,8 @@ internal sealed class SecurityTokenProvider(
         {
             var currentTokenFamily = currentRefreshToken.TokenFamily;
             var spec = new RefreshTokenByTokenFamilySpec(currentTokenFamily);
-            var refreshTokensFromFamily = await refreshTokenRepository.ListAsync(spec);
 
-            await refreshTokenRepository.DeleteRangeAsync(refreshTokensFromFamily);
+            await refreshTokenRepository.DeleteRangeAsync(spec);
             return Result.Failure<AuthenticationTokensResult>(SecurityError.RefreshTokenExpired);
         }
 
@@ -51,7 +49,7 @@ internal sealed class SecurityTokenProvider(
         await refreshTokenRepository.SaveChangesAsync();
 
         var userId = currentRefreshToken.AccountId;
-        var issueAccessToken = IssueAccessToken(userId);
+        var issueAccessToken = await IssueAccessToken(userId);
         var issueNewRefreshToken =
             await IssueRefreshTokenAsync(userId, currentRefreshToken.TokenFamily);
         if (issueNewRefreshToken.Failed)
@@ -67,7 +65,7 @@ internal sealed class SecurityTokenProvider(
 
     public async Task<Result<AuthenticationTokensResult>> IssueAuthenticationTokensAsync(Guid accountId)
     {
-        var issueAccessToken = IssueAccessToken(accountId);
+        var issueAccessToken = await IssueAccessToken(accountId);
         var issueRefreshToken = await IssueRefreshTokenAsync(accountId, null);
         if (issueRefreshToken.Failed)
             return Result.Failure<AuthenticationTokensResult>(issueRefreshToken.Error);
@@ -75,6 +73,7 @@ internal sealed class SecurityTokenProvider(
         var accessToken = issueAccessToken.AccessToken;
         var expiresAt = issueAccessToken.ExpiresAt;
         var refreshToken = issueRefreshToken.Value;
+
         return Result.Success(AuthenticationTokensResult.From(accessToken, expiresAt, refreshToken));
     }
 
@@ -109,9 +108,9 @@ internal sealed class SecurityTokenProvider(
         return Result.Success(refreshToken.Token);
     }
 
-    public AccessTokenResult IssueAccessToken(Guid accountId)
+    public async Task<AccessTokenResult> IssueAccessToken(Guid accountId)
     {
-        var claims = CreateClaims(accountId.ToString());
+        var claims = await CreateClaims(accountId);
         var expiresAt = AccessTokenExpiresAt;
         var tokenDescriptor = GenerateTokenDescriptor(claims, expiresAt);
 
@@ -140,14 +139,22 @@ internal sealed class SecurityTokenProvider(
         return Result.Success(emailConfirmationToken);
     }
 
-    private static List<Claim> CreateClaims(string accountId)
+    private async Task<List<Claim>> CreateClaims(Guid accountId)
     {
-        return new List<Claim>
+        var accountIdString = accountId.ToString();
+
+        var userRoles = await userManager.GetRolesAsync(new Account { Id = accountId });
+
+        var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, accountId),
+            new(JwtRegisteredClaimNames.Sub, accountIdString),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.NameIdentifier, accountId)
+            new(ClaimTypes.NameIdentifier, accountIdString)
         };
+
+        claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        return claims;
     }
 
     private SecurityTokenDescriptor GenerateTokenDescriptor(IEnumerable<Claim> claims, DateTime expiresAt)
