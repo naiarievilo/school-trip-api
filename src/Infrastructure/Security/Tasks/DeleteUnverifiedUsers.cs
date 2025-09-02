@@ -12,9 +12,9 @@ internal sealed class DeleteUnverifiedUsers(ILogger<DeleteUnverifiedUsers> logge
 {
     private readonly TimeSpan _interval = TimeSpan.FromDays(1);
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
@@ -25,7 +25,7 @@ internal sealed class DeleteUnverifiedUsers(ILogger<DeleteUnverifiedUsers> logge
                 logger.LogError(ex, "Couldn't complete task: {1}", ex.Message);
             }
 
-            await Task.Delay(_interval, stoppingToken);
+            await Task.Delay(_interval, cancellationToken);
         }
     }
 
