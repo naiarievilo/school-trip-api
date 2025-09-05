@@ -23,7 +23,7 @@ public sealed class UpdateGuardianInfoHandler(IRepository<Guardian> guardianRepo
         if (guardian is null) return Result.Failure(GuardianError.GuardianNotFound(accountId.Value));
 
         mapper.Map(command, guardian);
-        guardian.UpdateLastModifiedAt();
+        guardian.UpdateLastModified(guardian.FullName?.Value);
         await guardianRepository.UpdateAsync(guardian, cancellationToken);
 
         return Result.Success();

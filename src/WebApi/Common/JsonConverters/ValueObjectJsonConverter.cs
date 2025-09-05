@@ -78,8 +78,7 @@ public class ValueObjectJsonConverter<T> : JsonConverter<T> where T : ValueObjec
             // Try to find a factory method that accepts the property as a parameter
             var factoryMethod = typeToConvert.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .FirstOrDefault(fm =>
-                    (fm.Name.Equals("Create") || fm.Name.Equals("From") || fm.Name.Equals("TryFrom") ||
-                     fm.Name.Equals("New")) &&
+                    (fm.Name.Equals("Create") || fm.Name.Equals("From") || fm.Name.Equals("New")) &&
                     fm.GetParameters().Length == 1 &&
                     fm.GetParameters()[0].ParameterType == property.PropertyType &&
                     fm.ReturnType == typeToConvert);

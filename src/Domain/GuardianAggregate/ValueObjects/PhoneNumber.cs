@@ -1,12 +1,10 @@
 using System.Text.RegularExpressions;
 using SchoolTripApi.Domain.Common.Abstractions;
-using SchoolTripApi.Domain.Common.DTOs;
-using SchoolTripApi.Domain.Common.Errors;
 using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
 
-public class PhoneNumber : ValueObject
+public sealed class PhoneNumber : SimpleValueObject<PhoneNumber, string>, ISimpleValueObjectValidator<string>
 {
     public static readonly int MaxLength = 21;
 
@@ -17,19 +15,19 @@ public class PhoneNumber : ValueObject
     private static readonly Regex SpecialCharactersRegex =
         new(@"[\s\-\(\)\.]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    private PhoneNumber(string value)
+    private PhoneNumber(string value) : base(Normalize(Validate(value)))
+    {
+    }
+
+    public static string Validate(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new ValueObjectException("Phone number is required.");
-        if (value.Length > 20) throw new ValueObjectException("Phone number is too long.");
-
-        if (!PhoneNumberPattern.IsMatch(value))
-            throw new ValueObjectException("Phone number is not a valid phone number.");
-
-        Value = Normalize(value);
+        if (value.Length > MaxLength) throw new ValueObjectException("Phone number is too long.");
+        return PhoneNumberPattern.IsMatch(value)
+            ? value
+            : throw new ValueObjectException("Phone number is not a valid phone number.");
     }
-
-    public string Value { get; }
 
     private static string Normalize(string value)
     {
@@ -47,24 +45,6 @@ public class PhoneNumber : ValueObject
         var lineNumber = parsedPhoneNumber.Value.LocalNumber;
 
         return $"+55{areaCode}{lineNumber}";
-    }
-
-    public static PhoneNumber From(string value)
-    {
-        return new PhoneNumber(value);
-    }
-
-    public static Result<PhoneNumber> TryFrom(string value)
-    {
-        try
-        {
-            var phoneNumber = From(value);
-            return Result.Success(phoneNumber);
-        }
-        catch (ValueObjectException ex)
-        {
-            return Result.Failure<PhoneNumber>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
-        }
     }
 
     private static (string AreaCode, string LocalNumber, bool IsMobile)? ParseNormalizedPhoneNumber(
@@ -119,10 +99,5 @@ public class PhoneNumber : ValueObject
         var isMobile = localNumber.Length == 9 && localNumber[0] == '9';
 
         return (areaCode, localNumber, isMobile);
-    }
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
     }
 }

@@ -1,44 +1,24 @@
 using System.Text.RegularExpressions;
 using SchoolTripApi.Domain.Common.Abstractions;
-using SchoolTripApi.Domain.Common.DTOs;
-using SchoolTripApi.Domain.Common.Errors;
 using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
 
-public class Cpf : ValueObject
+public sealed class Cpf : SimpleValueObject<Cpf, string>, ISimpleValueObjectValidator<string>
 {
     public static readonly int MaxLength = 14;
     private static readonly Regex CpfPattern = new(@"(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)", RegexOptions.Compiled);
     private static readonly Regex DigitsOnly = new(@"[^\d]", RegexOptions.Compiled);
 
-    private Cpf(string value)
+    private Cpf(string value) : base(Normalize(Validate(value)))
+    {
+    }
+
+    public static string Validate(string value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("CPF is required.");
         if (value.Length > MaxLength) throw new ValueObjectException("CPF is too long.");
-        if (!CpfPattern.IsMatch(value)) throw new ValueObjectException("CPF provided is invalid.");
-
-        Value = Normalize(value);
-    }
-
-    public string Value { get; }
-
-    public static Cpf From(string value)
-    {
-        return new Cpf(value);
-    }
-
-    public static Result<Cpf> TryFrom(string value)
-    {
-        try
-        {
-            var cpf = From(value);
-            return Result.Success(cpf);
-        }
-        catch (ValueObjectException ex)
-        {
-            return Result.Failure<Cpf>(ValueObjectError.FailedToConvertToValueObject, ex.Message);
-        }
+        return CpfPattern.IsMatch(value) ? value : throw new ValueObjectException("CPF provided is invalid.");
     }
 
     private static string CpfDigits(string cpf)
@@ -89,10 +69,5 @@ public class Cpf : ValueObject
         secondCheckDigit = secondCheckDigit < 2 ? 0 : 11 - secondCheckDigit;
 
         return int.Parse(cpf[10].ToString()) == secondCheckDigit;
-    }
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
     }
 }

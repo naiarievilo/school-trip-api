@@ -2,10 +2,9 @@ using SchoolTripApi.Domain.Common.Abstractions;
 
 namespace SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
 
-public class GuardianId(Guid value) : GuidId<GuardianId>(value)
+public sealed class GuardianId : GuidId<GuardianId>
 {
-    protected override GuardianId CreateInstance(Guid value)
+    private GuardianId(Guid value) : base(value)
     {
-        return new GuardianId(value);
     }
 }

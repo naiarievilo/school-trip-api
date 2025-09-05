@@ -2,10 +2,9 @@ using SchoolTripApi.Domain.Common.Abstractions;
 
 namespace SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
 
-public class AccountId(Guid value) : GuidId<AccountId>(value)
+public sealed class AccountId : GuidId<AccountId>
 {
-    protected override AccountId CreateInstance(Guid value)
+    private AccountId(Guid value) : base(value)
     {
-        return new AccountId(value);
     }
 }

@@ -3,22 +3,22 @@ using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Common.Abstractions;
 
-public abstract class GuidId<TId>(Guid value) : SimpleValueObject<TId, Guid>(value)
+public abstract class IntegerId<TId>(int value) : SimpleValueObject<TId, int>(value)
 {
     public static Result<TId> TryFrom(string? value)
     {
-        return TryFrom(value, ConvertToGuid);
+        return TryFrom(value, ConvertToInt);
     }
 
     public static TId From(string? value)
     {
-        return From(value, ConvertToGuid);
+        return From(value, ConvertToInt);
     }
 
-    private static Guid ConvertToGuid(string? value)
+    private static int ConvertToInt(string? value)
     {
-        return Guid.TryParse(value, out var parsedGuid)
-            ? parsedGuid
+        return int.TryParse(value, out var parsedInt)
+            ? parsedInt
             : throw new ValueObjectException(FailedToConvertToValueObject(typeof(TId)));
     }
 }
