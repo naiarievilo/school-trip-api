@@ -4,16 +4,16 @@ using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.Common.ValueObjects;
 
-public sealed class StreetNumber : SimpleValueObject<StreetNumber, string>, ISimpleValueObjectValidator<string>
+public sealed partial class StreetNumber : SimpleValueObject<StreetNumber, string>, ISimpleValueObjectValidator<string>
 {
     public static readonly int MaxLength = 16;
-    private static readonly Regex StreetNumberPattern = new(@"^[0-9A-Za-z\-/]+$", RegexOptions.Compiled);
+    private static readonly Regex StreetNumberPattern = StreetNumberRegex();
 
     private StreetNumber(string value) : base(Validate(value))
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrEmpty(value)) throw new ValueObjectException("Street number is required.");
         if (value.Length > MaxLength) throw new ValueObjectException("Street number is too long.");
@@ -22,4 +22,7 @@ public sealed class StreetNumber : SimpleValueObject<StreetNumber, string>, ISim
             : throw new ValueObjectException(
                 "Must contain only digits (0-9), hyphen (-), foward slash (/), or 'S' and 'N' letters.");
     }
+
+    [GeneratedRegex(@"^[0-9A-Za-z\-/]+$")]
+    private static partial Regex StreetNumberRegex();
 }

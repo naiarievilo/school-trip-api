@@ -11,7 +11,7 @@ public sealed class City : SimpleValueObject<City, string>, ISimpleValueObjectVa
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("City is required.");
         return value.Length <= MaxLength

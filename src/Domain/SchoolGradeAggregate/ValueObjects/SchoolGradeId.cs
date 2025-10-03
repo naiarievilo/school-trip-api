@@ -1,6 +1,6 @@
 using SchoolTripApi.Domain.Common.Abstractions;
 
-namespace SchoolTripApi.Domain.SchoolGradeAggregate;
+namespace SchoolTripApi.Domain.SchoolGradeAggregate.ValueObjects;
 
 public sealed class SchoolGradeId : IntegerId<SchoolGradeId>
 {

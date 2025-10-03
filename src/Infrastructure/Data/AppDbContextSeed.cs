@@ -28,7 +28,7 @@ public static class AppDbContextSeed
         }
         catch (Exception ex)
         {
-            app.Logger.LogError(ex, "An error occured while seeding the database.");
+            app.Logger.LogError(ex, "An error occured while seeding the database: {errorMessage}", ex.Message);
         }
     }
 

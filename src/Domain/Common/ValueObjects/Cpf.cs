@@ -2,19 +2,19 @@ using System.Text.RegularExpressions;
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.Common.Exceptions;
 
-namespace SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
+namespace SchoolTripApi.Domain.Common.ValueObjects;
 
-public sealed class Cpf : SimpleValueObject<Cpf, string>, ISimpleValueObjectValidator<string>
+public sealed partial class Cpf : SimpleValueObject<Cpf, string>, ISimpleValueObjectValidator<string>
 {
     public static readonly int MaxLength = 14;
-    private static readonly Regex CpfPattern = new(@"(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)", RegexOptions.Compiled);
-    private static readonly Regex DigitsOnly = new(@"[^\d]", RegexOptions.Compiled);
+    private static readonly Regex CpfPattern = CpfRegex();
+    private static readonly Regex CpfDigitsOnlyPattern = CpfDigitsOnlyRegex();
 
     private Cpf(string value) : base(Normalize(Validate(value)))
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("CPF is required.");
         if (value.Length > MaxLength) throw new ValueObjectException("CPF is too long.");
@@ -23,7 +23,7 @@ public sealed class Cpf : SimpleValueObject<Cpf, string>, ISimpleValueObjectVali
 
     private static string CpfDigits(string cpf)
     {
-        return DigitsOnly.Replace(cpf.Trim(), string.Empty);
+        return CpfDigitsOnlyPattern.Replace(cpf.Trim(), string.Empty);
     }
 
     private static string FormattedCpf(string digitsOnly)
@@ -70,4 +70,10 @@ public sealed class Cpf : SimpleValueObject<Cpf, string>, ISimpleValueObjectVali
 
         return int.Parse(cpf[10].ToString()) == secondCheckDigit;
     }
+
+    [GeneratedRegex(@"^\d{3}\.\d{3}\.\d{3}\-\d{2}$")]
+    private static partial Regex CpfRegex();
+
+    [GeneratedRegex(@"[^\d]")]
+    private static partial Regex CpfDigitsOnlyRegex();
 }

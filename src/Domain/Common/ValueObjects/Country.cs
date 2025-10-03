@@ -11,7 +11,7 @@ public sealed class Country : SimpleValueObject<Country, string>, ISimpleValueOb
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("Country is required.");
         return value.Length <= MaxLength

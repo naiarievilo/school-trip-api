@@ -11,7 +11,7 @@ public sealed class Neighborhood : SimpleValueObject<Neighborhood, string>, ISim
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("Neighborhood is required.");
         return value.Length <= MaxLength

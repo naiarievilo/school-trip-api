@@ -1,19 +1,28 @@
 using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.ValueObjects;
+using SchoolTripApi.Domain.GuardianAggregate;
 using SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
+using SchoolTripApi.Domain.SchoolAggregate;
 using SchoolTripApi.Domain.SchoolAggregate.ValueObjects;
 using SchoolTripApi.Domain.SchoolGradeAggregate;
+using SchoolTripApi.Domain.SchoolGradeAggregate.ValueObjects;
 using SchoolTripApi.Domain.StudentAggregate.ValueObjects;
+using Cpf = SchoolTripApi.Domain.Common.ValueObjects.Cpf;
 
 namespace SchoolTripApi.Domain.StudentAggregate;
 
 public sealed class Student : AuditableEntity<StudentId>, IAggregateRoot
 {
-    public Student(GuardianId guardianId, SchoolId schoolId, SchoolGradeId schoolGradeId, FullName fullName, Cpf cpf,
+    public Student(Guardian guardian, School school, SchoolGrade schoolGrade, FullName fullName, Cpf cpf,
         DateOnly dateOfBirth, GradeClass? gradeClass, string createdBy)
     {
-        GuardianId = guardianId;
-        SchoolId = schoolId;
-        SchoolGradeId = schoolGradeId;
+        GuardianId = guardian.Id;
+        Guardian = guardian;
+        SchoolId = school.Id;
+        School = school;
+        SchoolGradeId = schoolGrade.Id;
+        SchoolGrade = schoolGrade;
+
         FullName = fullName;
         Cpf = cpf;
         DateOfBirth = dateOfBirth;
@@ -29,4 +38,8 @@ public sealed class Student : AuditableEntity<StudentId>, IAggregateRoot
     public Cpf Cpf { get; private set; }
     public DateOnly DateOfBirth { get; private set; }
     public GradeClass? GradeClass { get; private set; }
+
+    public Guardian Guardian { get; private set; }
+    public School School { get; private set; }
+    public SchoolGrade SchoolGrade { get; private set; }
 }

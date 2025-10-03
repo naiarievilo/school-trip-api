@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SchoolTripApi.Domain.GuardianAggregate;
+using SchoolTripApi.Infrastructure.Data.Configurations;
 using SchoolTripApi.Infrastructure.Security.Entities;
 
 namespace SchoolTripApi.Infrastructure.Data;
@@ -15,6 +16,7 @@ internal sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        modelBuilder.ApplyValueObjectConverterConfiguration();
         base.OnModelCreating(modelBuilder);
     }
 }

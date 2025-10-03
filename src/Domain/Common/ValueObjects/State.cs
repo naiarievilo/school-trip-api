@@ -11,7 +11,7 @@ public sealed class State : SimpleValueObject<State, string>, ISimpleValueObject
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("State is required.");
         return value.Length <= MaxLength

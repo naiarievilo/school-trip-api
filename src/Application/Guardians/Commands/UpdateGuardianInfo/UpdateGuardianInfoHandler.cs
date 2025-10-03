@@ -1,7 +1,6 @@
 using AutoMapper;
 using Mediator;
 using SchoolTripApi.Application.Common.Abstractions;
-using SchoolTripApi.Application.Guardians.Errors;
 using SchoolTripApi.Application.Guardians.Specifications;
 using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Domain.GuardianAggregate;

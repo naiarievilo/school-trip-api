@@ -1,0 +1,32 @@
+using SchoolTripApi.Domain.AgreementAggregate.ValueObjects;
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.TripAggregate;
+using SchoolTripApi.Domain.TripAggregate.ValueObjects;
+
+namespace SchoolTripApi.Domain.AgreementAggregate;
+
+public sealed class AgreementDocument : AuditableEntity<AgreementDocumentId>, IAggregateRoot
+{
+    public AgreementDocument(Trip trip, string richTextContent, int version, bool approved, DateTime approvedAt,
+        string createdBy)
+    {
+        TripId = trip.Id;
+        Trip = trip;
+
+        RichTextContent = richTextContent;
+        Version = version;
+        Approved = approved;
+        ApprovedAt = approvedAt;
+
+        CreatedBy = createdBy;
+        CreatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public TripId TripId { get; private set; }
+    public string RichTextContent { get; private set; }
+    public int Version { get; private set; }
+    public bool Approved { get; private set; }
+    public DateTime ApprovedAt { get; private set; }
+
+    public Trip Trip { get; private set; }
+}

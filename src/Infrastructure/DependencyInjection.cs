@@ -1,36 +1,45 @@
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using PuppeteerSharp;
 using SchoolTripApi.Application.Accounts.Abstractions;
+using SchoolTripApi.Application.Agreements.Abstractions;
 using SchoolTripApi.Application.Common.Abstractions;
 using SchoolTripApi.Domain.GuardianAggregate;
 using SchoolTripApi.Infrastructure.Data;
 using SchoolTripApi.Infrastructure.Data.Repositories;
 using SchoolTripApi.Infrastructure.Email;
+using SchoolTripApi.Infrastructure.FileStorage;
 using SchoolTripApi.Infrastructure.Logging;
 using SchoolTripApi.Infrastructure.Security.Entities;
 using SchoolTripApi.Infrastructure.Security.Services;
 using SchoolTripApi.Infrastructure.Security.Settings;
 using SchoolTripApi.Infrastructure.Security.Tasks;
+using SchoolTripApi.Infrastructure.WebScraping.Abstractions;
+using SchoolTripApi.Infrastructure.WebScraping.Services;
+using SchoolTripApi.Infrastructure.WebScraping.Settings;
 
 namespace SchoolTripApi.Infrastructure;
 
 public static class DependencyInjection
 {
     public static void AddInfrastructureConfiguration(this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration, IWebHostEnvironment environment)
     {
         services.AddAppDbContext(configuration)
             .AddIdentityCore()
             .AddRepositories();
 
         services.AddSecurity(configuration);
-        services.AddEmailService(configuration);
+        services.AddEmailing(configuration);
+        services.AddFileStorage(configuration, environment);
+        services.AddWebScraping(configuration);
         services.AddLogging();
     }
 
@@ -76,7 +85,7 @@ public static class DependencyInjection
         return services;
     }
 
-    private static void AddEmailService(this IServiceCollection services,
+    private static void AddEmailing(this IServiceCollection services,
         IConfiguration configuration)
     {
         services.Configure<EmailSettings>(configuration.GetSection("MailingSettings"));
@@ -149,5 +158,33 @@ public static class DependencyInjection
     private static void AddLogging(this IServiceCollection services)
     {
         services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
+    }
+
+    private static void AddWebScraping(this IServiceCollection services, IConfiguration configuration)
+    {
+        var browserSection = configuration.GetSection("BrowserSettings");
+        var signatureValidationSection = configuration.GetSection("SignatureValidationSettings");
+        services.Configure<BrowserSettings>(browserSection);
+        services.Configure<SignatureValidationSettings>(signatureValidationSection);
+
+        services.AddSingleton<IBrowserService<IBrowser, IPage>, BrowserService>();
+        services.AddScoped<ISignatureValidationService, SignatureValidationService>();
+    }
+
+    private static void AddFileStorage(this IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment environment)
+    {
+        if (environment.EnvironmentName != "Development") return;
+
+        var solutionRoot = Directory.GetParent(environment.ContentRootPath)?.FullName!;
+
+        services.Configure<LocalFileStorageSettings>(options =>
+        {
+            var settings = configuration.GetSection("FileStorageSettings").Get<LocalFileStorageSettings>();
+            options.SignedAgreementsPath = Path.Combine(solutionRoot, settings!.SignedAgreementsPath);
+            Directory.CreateDirectory(options.SignedAgreementsPath);
+        });
+
+        services.AddScoped<IFileStorageService, LocalStorageService>();
     }
 }

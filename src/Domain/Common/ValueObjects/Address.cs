@@ -7,4 +7,4 @@ public sealed record Address(
     City City,
     State State,
     Country Country,
-    PostalCode PostalCode);
+    Cep Cep);

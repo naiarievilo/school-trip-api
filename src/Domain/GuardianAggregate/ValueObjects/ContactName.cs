@@ -11,7 +11,7 @@ public sealed class ContactName : SimpleValueObject<ContactName, string>, ISimpl
     {
     }
 
-    public static string Validate(string value)
+    public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new ValueObjectException("Contact name is required.");

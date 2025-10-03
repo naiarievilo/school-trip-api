@@ -27,6 +27,9 @@
         <!-- Object Mapping -->
         <PackageReference Include="AutoMapper"/>
 
+        <!-- Web Scraping -->
+        <PackageReference Include="PuppeteerSharp"/>
+
         <!-- Microsoft extensions -->
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
@@ -34,6 +37,7 @@
 
     <ItemGroup>
         <Folder Include="Data\Migrations\"/>
+        <Folder Include="Templates\"/>
     </ItemGroup>
 
 </Project>

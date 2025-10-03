@@ -17,5 +17,5 @@ public interface ISimpleValueObjectValidator<TValue>
     /// </summary>
     /// <param name="value">Value to be validated.</param>
     /// <returns></returns>
-    static abstract TValue Validate(TValue value);
+    static abstract TValue Validate(TValue? value);
 }

@@ -6,9 +6,10 @@ using SchoolTripApi.WebApi;
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
+var environment = builder.Environment;
 
 builder.Services.AddApplicationConfiguration(configuration);
-builder.Services.AddInfrastructureConfiguration(configuration);
+builder.Services.AddInfrastructureConfiguration(configuration, environment);
 builder.Services.AddWebApiConfiguration(configuration);
 
 var app = builder.Build();

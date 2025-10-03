@@ -6,6 +6,5 @@ public sealed class SchoolId : GuidId<SchoolId>
 {
     private SchoolId(Guid value) : base(value)
     {
-        Value = value;
     }
 }

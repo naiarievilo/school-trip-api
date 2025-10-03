@@ -22,4 +22,10 @@
         <!-- Entity Framework Core -->
         <PackageReference Include="Ardalis.Specification.EntityFrameworkCore"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Agreements\Commands\"/>
+        <Folder Include="Agreements\Queries\"/>
+        <Folder Include="Guardians\Errors\"/>
+    </ItemGroup>
 </Project>

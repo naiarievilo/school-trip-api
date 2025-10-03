@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Mediator;
 using SchoolTripApi.Domain.Common.DTOs;
-using SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
+using SchoolTripApi.Domain.Common.ValueObjects;
 
 namespace SchoolTripApi.Application.Accounts.Commands.CreateAccount;
 
