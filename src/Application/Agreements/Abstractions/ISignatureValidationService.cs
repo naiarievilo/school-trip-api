@@ -6,5 +6,4 @@ namespace SchoolTripApi.Application.Agreements.Abstractions;
 public interface ISignatureValidationService
 {
     Task<Result<SignatureValidationResult>> ValidatePdfAsync(byte[] pdfData, string fileName);
-    Task<Result<SignatureValidationResult>> ValidatePdfFromUrlAsync(string pdfUrl);
 }

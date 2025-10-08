@@ -7,7 +7,7 @@ public class BrowserSettings
     public required DefaultViewport ViewPort { get; init; }
     public required int MaxPagePoolSize { get; init; }
     public required int BrowserInitializationTimeout { get; init; }
-    public required int WaitNewPageTimeout { get; set; }
+    public required int GetPageTimeout { get; init; }
     public required int PageCleanUpTimer { get; init; }
     public required int PageExpiresIn { get; init; }
 }

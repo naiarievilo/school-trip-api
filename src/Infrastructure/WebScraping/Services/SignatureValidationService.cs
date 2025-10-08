@@ -32,7 +32,9 @@ public class SignatureValidationService(
         {
             logger.LogInformation("Starting PDF validation for file '{fileName}'...", fileName);
 
-            var page = await browserService.GetPageAsync();
+            var getPage = await browserService.GetPageAsync();
+            if (getPage.Failed) return Result.Failure<SignatureValidationResult>(getPage.Error);
+            var page = getPage.Value;
 
             await page.GoToAsync(_settings.ValidationUrl,
                 PageNavigationOptions(WaitUntilNavigation.Networkidle0, 30000));
@@ -67,17 +69,25 @@ public class SignatureValidationService(
 
             var documentElement = await page.QuerySelectorAsync("#documento");
             if (documentElement is not null) return await ExtractSignatureValidationResultAsync(page);
+
+            var errorElement = await page.QuerySelectorAsync("#swal2-html-container");
+            if (errorElement is null)
+                throw new Exception("Document was not accepted, but error message couldn't be retrieved.");
+
+
+            var errorMessage =
+                await errorElement.EvaluateFunctionAsync<string>("element => element.textContent?.trim() || ''");
+            return string.IsNullOrEmpty(errorMessage)
+                ? Result.Failure<SignatureValidationResult>(SignatureValidationError.ValidationFailed(errorMessage))
+                : Result.Failure<SignatureValidationResult>(
+                    SignatureValidationError.ValidationFailed(
+                        "Document doesn't have recognizable signature or signature is corrupted."));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error validating PDF file '{fileName}'.", fileName);
+            logger.LogError(ex, "Error validating PDF file '{fileName}': {errorMessage}", fileName, ex.Message);
             return Result.Failure<SignatureValidationResult>(SignatureValidationError.ValidationFailed(fileName));
         }
-    }
-
-    public async Task<Result<SignatureValidationResult>> ValidatePdfFromUrlAsync(string pdfUrl)
-    {
-        throw new NotImplementedException();
     }
 
     private async Task<Result<SignatureValidationResult>> ExtractSignatureValidationResultAsync(IPage page)
@@ -239,7 +249,6 @@ public class SignatureValidationService(
             EnableRaisingEvents = true
         };
 
-
         watcher.Created += (sender, e) =>
         {
             if (e.Name!.EndsWith(PdfExtension) && !e.Name.EndsWith(DownloadExtension)) downloadedFile = e.FullPath;
@@ -247,7 +256,7 @@ public class SignatureValidationService(
 
         watcher.Changed += (sender, e) =>
         {
-            if (e.Name!.EndsWith(".pdf") && downloadedFile.Equals(e.FullPath) &&
+            if (e.Name!.EndsWith(PdfExtension) && downloadedFile.Equals(e.FullPath) &&
                 !File.Exists(e.FullPath + DownloadExtension))
                 Task.Delay(500).ContinueWith(_ => downloadCompleteTcs.TrySetResult(e.FullPath));
         };
@@ -304,8 +313,9 @@ public class SignatureValidationService(
             return Result.Failure<string>(SignatureValidationError.ExtractFileValidationInfoFailed(errorMessage));
         }
 
-        var fileName = await fileNameElement.EvaluateFunctionAsync<string>("element => element.textContent");
-        if (fileName is null)
+        var fileName =
+            await fileNameElement.EvaluateFunctionAsync<string>("element => element?.textContent?.trim() || ''");
+        if (string.IsNullOrEmpty(fileName))
         {
             const string errorMessage = "File name is null or empty.";
             logger.LogError(errorMessage);
@@ -341,8 +351,9 @@ public class SignatureValidationService(
             return Result.Failure<string>(SignatureValidationError.ExtractFileValidationInfoFailed(errorMessage));
         }
 
-        var fileHash = await fileHashElement.EvaluateFunctionAsync<string>("element => element.textContent");
-        if (fileHash is null)
+        var fileHash =
+            await fileHashElement.EvaluateFunctionAsync<string>("element => element?.textContent?.trim() || ''");
+        if (string.IsNullOrEmpty(fileHash))
         {
             const string errorMessage = "File hash is null or empty.";
             logger.LogError(errorMessage);
@@ -360,11 +371,6 @@ public class SignatureValidationService(
     private NavigationOptions PageNavigationOptions(WaitUntilNavigation waitUntil, int timeout)
     {
         return new NavigationOptions { WaitUntil = [waitUntil], Timeout = timeout };
-    }
-
-    private ViewPortOptions ViewPortOptions(int width, int height)
-    {
-        return new ViewPortOptions { Width = width, Height = height };
     }
 
     private WaitForSelectorOptions WaitForSelector(int timeout)

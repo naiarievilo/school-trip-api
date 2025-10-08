@@ -26,4 +26,9 @@ internal sealed class AppLogger<T>(ILoggerFactory loggerFactory) : IAppLogger<T>
     {
         _logger.LogWarning(message, args);
     }
+
+    public void LogDebug(string message, params object[] args)
+    {
+        _logger.LogDebug(message, args);
+    }
 }
