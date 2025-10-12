@@ -5,8 +5,8 @@ namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
 
 public sealed class ParticipantsCapacity : ValueObject
 {
-    public ParticipantsCapacity(MinimumTripParticipants minimumRequired,
-        MaximumTripParticipants maximumAllowed)
+    public ParticipantsCapacity(MinimumParticipants minimumRequired,
+        MaximumParticipants maximumAllowed)
     {
         if (minimumRequired.Value > maximumAllowed.Value)
             throw new ValueObjectException(
@@ -16,8 +16,8 @@ public sealed class ParticipantsCapacity : ValueObject
         MaximumAllowed = maximumAllowed;
     }
 
-    public MinimumTripParticipants MinimumRequired { get; }
-    public MaximumTripParticipants MaximumAllowed { get; }
+    public MinimumParticipants MinimumRequired { get; }
+    public MaximumParticipants MaximumAllowed { get; }
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

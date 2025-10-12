@@ -2,9 +2,9 @@ using SchoolTripApi.Domain.Common.Abstractions;
 
 namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
 
-public class TripId : IntegerId<int>
+public class SchoolTripId : IntegerId<int>
 {
-    private TripId(int value) : base(value)
+    private SchoolTripId(int value) : base(value)
     {
     }
 }

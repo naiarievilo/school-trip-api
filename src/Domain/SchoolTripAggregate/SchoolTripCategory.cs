@@ -1,6 +1,6 @@
 namespace SchoolTripApi.Domain.TripAggregate;
 
-public enum TripCategory
+public enum SchoolTripCategory
 {
     National,
     International

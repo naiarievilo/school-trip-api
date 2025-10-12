@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SchoolTripApi.Infrastructure.Security.Entities;
 
-namespace SchoolTripApi.Infrastructure.Data.Configurations;
+namespace SchoolTripApi.Infrastructure.Data.Configurations.Entities;
 
 internal sealed class AccountConfiguration : IEntityTypeConfiguration<Account>
 {

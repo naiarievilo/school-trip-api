@@ -2,9 +2,9 @@ using SchoolTripApi.Domain.Common.Abstractions;
 
 namespace SchoolTripApi.Domain.SchoolGradeAggregate.ValueObjects;
 
-public sealed class SchoolGradeId : IntegerId<SchoolGradeId>
+public sealed class GradeLevelId : IntegerId<GradeLevelId>
 {
-    private SchoolGradeId(int value) : base(value)
+    private GradeLevelId(int value) : base(value)
     {
     }
 }

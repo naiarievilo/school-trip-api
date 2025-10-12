@@ -167,6 +167,7 @@ public static class DependencyInjection
         services.Configure<BrowserSettings>(browserSection);
         services.Configure<SignatureValidationSettings>(signatureValidationSection);
 
+        services.AddSingleton<IAppLogger<BrowserService>, AppLogger<BrowserService>>();
         services.AddSingleton<IBrowserService<IBrowser, IPage>, BrowserService>();
         services.AddScoped<ISignatureValidationService, SignatureValidationService>();
     }

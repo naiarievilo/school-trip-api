@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SchoolTripApi.Infrastructure.Security.Entities;
 
-namespace SchoolTripApi.Infrastructure.Data.Configurations;
+namespace SchoolTripApi.Infrastructure.Data.Configurations.Entities;
 
 internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
@@ -15,6 +15,9 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
         builder.Property(rt => rt.TokenFamily).HasMaxLength(36);
         builder.Property(rt => rt.ExpiresAt).HasDefaultValue(DateTime.UtcNow);
 
-        builder.HasOne(rt => rt.User).WithMany().HasForeignKey(rt => rt.AccountId);
+        builder.HasOne(rt => rt.User)
+            .WithMany()
+            .HasForeignKey(rt => rt.AccountId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

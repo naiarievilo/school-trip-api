@@ -1,4 +1,4 @@
-namespace SchoolTripApi.Domain.SchoolGradeAggregate;
+namespace SchoolTripApi.Domain.GradeLevelAggregate;
 
 public static class BrazilianSchoolGradeSystem
 {

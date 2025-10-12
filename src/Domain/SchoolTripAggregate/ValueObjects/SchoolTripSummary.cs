@@ -3,11 +3,11 @@ using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
 
-public sealed class TripSummary : SimpleValueObject<TripSummary, string>, ISimpleValueObjectValidator<string>
+public sealed class SchoolTripSummary : SimpleValueObject<SchoolTripSummary, string>, ISimpleValueObjectValidator<string>
 {
     public static readonly int MaxLength = 500;
 
-    internal TripSummary(string value) : base(Validate(value))
+    internal SchoolTripSummary(string value) : base(Validate(value))
     {
     }
 

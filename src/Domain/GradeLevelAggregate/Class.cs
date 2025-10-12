@@ -1,6 +1,6 @@
 namespace SchoolTripApi.Domain.SchoolGradeAggregate;
 
-public enum GradeClass
+public enum Class
 {
     A,
     B,

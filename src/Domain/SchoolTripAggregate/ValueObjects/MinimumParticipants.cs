@@ -3,12 +3,12 @@ using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
 
-public sealed class MinimumTripParticipants : SimpleValueObject<MinimumTripParticipants, int>,
+public sealed class MinimumParticipants : SimpleValueObject<MinimumParticipants, int>,
     ISimpleValueObjectValidator<int>
 {
     public static readonly int MinValue = 1;
 
-    internal MinimumTripParticipants(int value) : base(Validate(value))
+    internal MinimumParticipants(int value) : base(Validate(value))
     {
     }
 

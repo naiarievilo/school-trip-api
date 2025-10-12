@@ -2,44 +2,55 @@ using SchoolTripApi.Domain.AgreementAggregate;
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Domain.Common.ValueObjects;
+using SchoolTripApi.Domain.EnrollmentAggregate;
+using SchoolTripApi.Domain.GradeLevelAggregate;
 using SchoolTripApi.Domain.RatingAggregate;
-using SchoolTripApi.Domain.SchoolGradeAggregate;
+using SchoolTripApi.Domain.SchoolAggregate;
+using SchoolTripApi.Domain.SchoolAggregate.ValueObjects;
 using SchoolTripApi.Domain.TripAggregate.ValueObjects;
 
 namespace SchoolTripApi.Domain.TripAggregate;
 
-public sealed class Trip : AuditableEntity<TripId>, IAggregateRoot
+public sealed class SchoolTrip : AuditableEntity<SchoolTripId>, IAggregateRoot
 {
     private readonly ICollection<Agreement> _agreements = new List<Agreement>();
+    private readonly ICollection<Enrollment> _enrollments = new List<Enrollment>();
+    private readonly ICollection<GradeLevel> _grades = new List<GradeLevel>();
     private readonly ICollection<Rating> _ratings = new List<Rating>();
-    private readonly ICollection<SchoolGrade> _schoolGrades = new List<SchoolGrade>();
 
-    public Trip(TripName name, TripCategory category, TripSummary summary, Money price,
+    public SchoolTrip(School school, AgreementTemplate agreementTemplate, SchoolTripName name, SchoolTripCategory category,
+        SchoolTripSummary summary, Money price,
         ParticipantsCapacity participantsCapacity, DateTimeOffset saleStartsAt, DateTimeOffset saleEndsAt,
         DateTimeOffset departureAt, DateTimeOffset returnAt, Address departureAddress,
-        TripStatus? status, string createdBy)
+        SchoolTripStatus? status, string createdBy)
     {
+        AgreementTemplate = agreementTemplate;
+        SchoolId = school.Id;
+        School = school;
+
         Name = name;
         Category = category;
         Summary = summary;
         Price = price;
         ParticipantsCapacity = participantsCapacity;
-        Status = status ?? TripStatus.OpenForSale;
+        Status = status ?? SchoolTripStatus.OpenForSale;
         SaleStartsAt = saleStartsAt;
         SaleEndsAt = saleEndsAt;
         DepartureAddress = departureAddress;
         DepartureAt = departureAt;
         ReturnAt = returnAt;
 
+
         CreatedAt = DateTimeOffset.UtcNow;
         CreatedBy = createdBy;
     }
 
-    public TripName Name { get; private set; }
-    public TripCategory Category { get; private set; }
-    public TripSummary Summary { get; private set; }
+    public SchoolId SchoolId { get; private set; }
+    public SchoolTripName Name { get; private set; }
+    public SchoolTripCategory Category { get; private set; }
+    public SchoolTripSummary Summary { get; private set; }
     public ParticipantsCapacity ParticipantsCapacity { get; private set; }
-    public TripStatus Status { get; private set; }
+    public SchoolTripStatus Status { get; private set; }
     public Money Price { get; private set; }
     public DateTimeOffset SaleStartsAt { get; private set; }
     public DateTimeOffset SaleEndsAt { get; private set; }
@@ -48,8 +59,11 @@ public sealed class Trip : AuditableEntity<TripId>, IAggregateRoot
     public DateTimeOffset ReturnAt { get; private set; }
 
     public IEnumerable<Rating> Ratings => _ratings;
-    public IEnumerable<SchoolGrade> SchoolGrades => _schoolGrades;
+    public IEnumerable<GradeLevel> Grades => _grades;
     public IEnumerable<Agreement> Agreements => _agreements;
+    public IEnumerable<Enrollment> Enrollments => _enrollments;
+    public AgreementTemplate AgreementTemplate { get; private set; }
+    public School School { get; private set; }
 
     public Result AddAgreement(Agreement agreement)
     {
@@ -60,6 +74,18 @@ public sealed class Trip : AuditableEntity<TripId>, IAggregateRoot
     public Result RemoveAgreement(Agreement agreement)
     {
         _agreements.Remove(agreement);
+        return Result.Success();
+    }
+
+    public Result AddEnrollment(Enrollment enrollment)
+    {
+        _enrollments.Add(enrollment);
+        return Result.Success();
+    }
+
+    public Result RemoveEnrollment(Enrollment enrollment)
+    {
+        _enrollments.Remove(enrollment);
         return Result.Success();
     }
 
@@ -75,28 +101,28 @@ public sealed class Trip : AuditableEntity<TripId>, IAggregateRoot
         return Result.Success();
     }
 
-    public Result AddSchoolGrade(SchoolGrade grade)
+    public Result AddGrade(GradeLevel gradeLevel)
     {
-        _schoolGrades.Add(grade);
+        _grades.Add(gradeLevel);
         return Result.Success();
     }
 
-    public Result RemoveSchoolGrade(SchoolGrade grade)
+    public Result RemoveGrade(GradeLevel gradeLevel)
     {
-        _schoolGrades.Remove(grade);
+        _grades.Remove(gradeLevel);
         return Result.Success();
     }
 
-    public Result AddSchoolGrades(IEnumerable<SchoolGrade> grades)
+    public Result AddSchoolGrades(IEnumerable<GradeLevel> grades)
     {
-        foreach (var grade in grades) _schoolGrades.Add(grade);
+        foreach (var grade in grades) _grades.Add(grade);
 
         return Result.Success();
     }
 
-    public Result RemoveSchoolGrades(IEnumerable<SchoolGrade> grades)
+    public Result RemoveSchoolGrades(IEnumerable<GradeLevel> grades)
     {
-        foreach (var grade in grades) _schoolGrades.Remove(grade);
+        foreach (var grade in grades) _grades.Remove(grade);
 
         return Result.Success();
     }

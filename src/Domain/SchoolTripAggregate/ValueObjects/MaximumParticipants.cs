@@ -3,12 +3,12 @@ using SchoolTripApi.Domain.Common.Exceptions;
 
 namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
 
-public class MaximumTripParticipants : SimpleValueObject<MaximumTripParticipants, int>, ISimpleValueObjectValidator<int>
+public class MaximumParticipants : SimpleValueObject<MaximumParticipants, int>, ISimpleValueObjectValidator<int>
 {
     public static readonly int MinValue = 1;
     public static readonly int MaxValue = int.MaxValue;
 
-    internal MaximumTripParticipants(int value) : base(Validate(value))
+    internal MaximumParticipants(int value) : base(Validate(value))
     {
     }
 

@@ -1,6 +1,6 @@
 namespace SchoolTripApi.Domain.TripAggregate;
 
-public enum TripStatus
+public enum SchoolTripStatus
 {
     OpenForSale,
     ClosedForSale,
