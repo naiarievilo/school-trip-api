@@ -1,9 +1,10 @@
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.Common.Exceptions;
 
-namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
+namespace SchoolTripApi.Domain.SchoolTripAggregate.ValueObjects;
 
-public sealed class SchoolTripSummary : SimpleValueObject<SchoolTripSummary, string>, ISimpleValueObjectValidator<string>
+public sealed class SchoolTripSummary : SimpleValueObject<SchoolTripSummary, string>,
+    ISimpleValueObjectValidator<string>
 {
     public static readonly int MaxLength = 500;
 

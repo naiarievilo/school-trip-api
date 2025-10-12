@@ -1,7 +1,7 @@
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.Common.Exceptions;
 
-namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
+namespace SchoolTripApi.Domain.SchoolTripAggregate.ValueObjects;
 
 public sealed class MinimumParticipants : SimpleValueObject<MinimumParticipants, int>,
     ISimpleValueObjectValidator<int>

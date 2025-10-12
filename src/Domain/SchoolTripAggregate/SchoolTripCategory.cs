@@ -1,4 +1,4 @@
-namespace SchoolTripApi.Domain.TripAggregate;
+namespace SchoolTripApi.Domain.SchoolTripAggregate;
 
 public enum SchoolTripCategory
 {

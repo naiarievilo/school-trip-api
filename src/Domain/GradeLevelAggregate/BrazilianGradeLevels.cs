@@ -1,6 +1,6 @@
 namespace SchoolTripApi.Domain.GradeLevelAggregate;
 
-public static class BrazilianSchoolGradeSystem
+public static class BrazilianGradeLevels
 {
     // 0-1 years old: 'Berçário'
     public static readonly string Ei1 = "EI1";

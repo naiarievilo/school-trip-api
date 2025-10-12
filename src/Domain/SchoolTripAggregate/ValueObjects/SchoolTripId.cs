@@ -1,8 +1,8 @@
 using SchoolTripApi.Domain.Common.Abstractions;
 
-namespace SchoolTripApi.Domain.TripAggregate.ValueObjects;
+namespace SchoolTripApi.Domain.SchoolTripAggregate.ValueObjects;
 
-public class SchoolTripId : IntegerId<int>
+public sealed class SchoolTripId : IntegerId<SchoolTrip>
 {
     private SchoolTripId(int value) : base(value)
     {

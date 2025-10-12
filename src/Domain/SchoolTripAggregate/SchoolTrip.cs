@@ -1,4 +1,5 @@
 using SchoolTripApi.Domain.AgreementAggregate;
+using SchoolTripApi.Domain.AgreementAggregate.ValueObjects;
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
 using SchoolTripApi.Domain.Common.ValueObjects;
@@ -7,9 +8,9 @@ using SchoolTripApi.Domain.GradeLevelAggregate;
 using SchoolTripApi.Domain.RatingAggregate;
 using SchoolTripApi.Domain.SchoolAggregate;
 using SchoolTripApi.Domain.SchoolAggregate.ValueObjects;
-using SchoolTripApi.Domain.TripAggregate.ValueObjects;
+using SchoolTripApi.Domain.SchoolTripAggregate.ValueObjects;
 
-namespace SchoolTripApi.Domain.TripAggregate;
+namespace SchoolTripApi.Domain.SchoolTripAggregate;
 
 public sealed class SchoolTrip : AuditableEntity<SchoolTripId>, IAggregateRoot
 {
@@ -18,43 +19,58 @@ public sealed class SchoolTrip : AuditableEntity<SchoolTripId>, IAggregateRoot
     private readonly ICollection<GradeLevel> _grades = new List<GradeLevel>();
     private readonly ICollection<Rating> _ratings = new List<Rating>();
 
-    public SchoolTrip(School school, AgreementTemplate agreementTemplate, SchoolTripName name, SchoolTripCategory category,
+    public SchoolTrip(SchoolId schoolId, AgreementTemplateId agreementTemplateId, SchoolTripName name,
+        SchoolTripCategory category,
         SchoolTripSummary summary, Money price,
         ParticipantsCapacity participantsCapacity, DateTimeOffset saleStartsAt, DateTimeOffset saleEndsAt,
         DateTimeOffset departureAt, DateTimeOffset returnAt, Address departureAddress,
-        SchoolTripStatus? status, string createdBy)
+        SchoolTripStatus status, string createdBy) : base(createdBy)
     {
-        AgreementTemplate = agreementTemplate;
-        SchoolId = school.Id;
-        School = school;
-
+        AgreementTemplateId = agreementTemplateId;
+        SchoolId = schoolId;
         Name = name;
         Category = category;
         Summary = summary;
         Price = price;
         ParticipantsCapacity = participantsCapacity;
-        Status = status ?? SchoolTripStatus.OpenForSale;
+        Status = status;
         SaleStartsAt = saleStartsAt;
         SaleEndsAt = saleEndsAt;
         DepartureAddress = departureAddress;
         DepartureAt = departureAt;
         ReturnAt = returnAt;
-
-
-        CreatedAt = DateTimeOffset.UtcNow;
-        CreatedBy = createdBy;
     }
 
+    // For EF Core (cannot use parameterized constructor for EF Core if parameter is owned type)
+    private SchoolTrip(SchoolId schoolId, AgreementTemplateId agreementTemplateId, SchoolTripName name,
+        SchoolTripCategory category,
+        SchoolTripSummary summary, DateTimeOffset saleStartsAt, DateTimeOffset saleEndsAt,
+        DateTimeOffset departureAt, DateTimeOffset returnAt, SchoolTripStatus status,
+        string createdBy) : base(createdBy)
+    {
+        AgreementTemplateId = agreementTemplateId;
+        SchoolId = schoolId;
+        Name = name;
+        Category = category;
+        Summary = summary;
+        Status = status;
+        SaleStartsAt = saleStartsAt;
+        SaleEndsAt = saleEndsAt;
+        DepartureAt = departureAt;
+        ReturnAt = returnAt;
+    }
+
+    public AgreementTemplateId AgreementTemplateId { get; private set; }
     public SchoolId SchoolId { get; private set; }
     public SchoolTripName Name { get; private set; }
     public SchoolTripCategory Category { get; private set; }
     public SchoolTripSummary Summary { get; private set; }
-    public ParticipantsCapacity ParticipantsCapacity { get; private set; }
+    public ParticipantsCapacity ParticipantsCapacity { get; private set; } = null!;
     public SchoolTripStatus Status { get; private set; }
-    public Money Price { get; private set; }
+    public Money Price { get; private set; } = null!;
     public DateTimeOffset SaleStartsAt { get; private set; }
     public DateTimeOffset SaleEndsAt { get; private set; }
-    public Address DepartureAddress { get; private set; }
+    public Address DepartureAddress { get; private set; } = null!;
     public DateTimeOffset DepartureAt { get; private set; }
     public DateTimeOffset ReturnAt { get; private set; }
 
@@ -62,8 +78,9 @@ public sealed class SchoolTrip : AuditableEntity<SchoolTripId>, IAggregateRoot
     public IEnumerable<GradeLevel> Grades => _grades;
     public IEnumerable<Agreement> Agreements => _agreements;
     public IEnumerable<Enrollment> Enrollments => _enrollments;
-    public AgreementTemplate AgreementTemplate { get; private set; }
-    public School School { get; private set; }
+
+    public AgreementTemplate? AgreementTemplate { get; init; }
+    public School? School { get; init; }
 
     public Result AddAgreement(Agreement agreement)
     {
@@ -113,14 +130,14 @@ public sealed class SchoolTrip : AuditableEntity<SchoolTripId>, IAggregateRoot
         return Result.Success();
     }
 
-    public Result AddSchoolGrades(IEnumerable<GradeLevel> grades)
+    public Result AddGradeLevels(IEnumerable<GradeLevel> grades)
     {
         foreach (var grade in grades) _grades.Add(grade);
 
         return Result.Success();
     }
 
-    public Result RemoveSchoolGrades(IEnumerable<GradeLevel> grades)
+    public Result RemoveGradeLevels(IEnumerable<GradeLevel> grades)
     {
         foreach (var grade in grades) _grades.Remove(grade);
 

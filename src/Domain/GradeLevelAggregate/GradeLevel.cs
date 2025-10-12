@@ -1,33 +1,38 @@
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.Common.DTOs;
+using SchoolTripApi.Domain.GradeLevelAggregate.ValueObjects;
 using SchoolTripApi.Domain.SchoolAggregate;
-using SchoolTripApi.Domain.SchoolGradeAggregate.ValueObjects;
+using SchoolTripApi.Domain.SchoolTripAggregate;
 using SchoolTripApi.Domain.StudentAggregate;
-using SchoolTripApi.Domain.TripAggregate;
 
-namespace SchoolTripApi.Domain.SchoolGradeAggregate;
+namespace SchoolTripApi.Domain.GradeLevelAggregate;
 
-public sealed class GradeLevel(string code) : Entity<GradeLevelId>, IAggregateRoot
+public sealed class GradeLevel : Entity<GradeLevelId>, IAggregateRoot
 {
     private readonly ICollection<School> _schools = new List<School>();
     private readonly ICollection<Student> _students = new List<Student>();
-    private readonly ICollection<Trip> _trips = new List<Trip>();
+    private readonly ICollection<SchoolTrip> _trips = new List<SchoolTrip>();
 
-    public string SchoolGradeCode { get; private set; } = code;
+    public GradeLevel(string gradeLevelCode)
+    {
+        GradeLevelCode = gradeLevelCode;
+    }
+
+    public string GradeLevelCode { get; private set; }
 
     public IEnumerable<Student> Students => _students;
     public IEnumerable<School> Schools => _schools;
-    public IEnumerable<Trip> Trips => _trips;
+    public IEnumerable<SchoolTrip> Trips => _trips;
 
-    public Result AddTrip(Trip trip)
+    public Result AddTrip(SchoolTrip schoolTrip)
     {
-        _trips.Add(trip);
+        _trips.Add(schoolTrip);
         return Result.Success();
     }
 
-    public Result RemoveTrip(Trip trip)
+    public Result RemoveTrip(SchoolTrip schoolTrip)
     {
-        _trips.Remove(trip);
+        _trips.Remove(schoolTrip);
         return Result.Success();
     }
 

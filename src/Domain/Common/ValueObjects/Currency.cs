@@ -1,6 +1,6 @@
+using SchoolTripApi.Domain.Common.Abstractions;
+using SchoolTripApi.Domain.Common.Enums;
+
 namespace SchoolTripApi.Domain.Common.ValueObjects;
 
-public class Currency
-{
-    
-}
+public sealed class Currency(CurrencyCode value) : SimpleValueObject<Currency, CurrencyCode>(value);

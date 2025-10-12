@@ -2,25 +2,32 @@ using SchoolTripApi.Domain.AgreementAggregate.ValueObjects;
 using SchoolTripApi.Domain.Common.Abstractions;
 using SchoolTripApi.Domain.GuardianAggregate;
 using SchoolTripApi.Domain.GuardianAggregate.ValueObjects;
+using SchoolTripApi.Domain.SchoolTripAggregate;
+using SchoolTripApi.Domain.SchoolTripAggregate.ValueObjects;
 
 namespace SchoolTripApi.Domain.AgreementAggregate;
 
 public sealed class Agreement : AuditableEntity<AgreementId>, IAggregateRoot
 {
-    public Agreement(AgreementDocument agreementDocument, Guardian guardian, string createdBy)
+    public Agreement(SchoolTripId schoolTripId, AgreementTemplateId agreementTemplateId, GuardianId guardianId,
+        string? fileName, bool isSigned, DateTimeOffset? signedAt, string createdBy) : base(createdBy)
     {
-        AgreementDocumentId = agreementDocument.Id;
-        AgreementDocument = agreementDocument;
-        GuardianId = guardian.Id;
-        Guardian = guardian;
-
-        CreatedBy = createdBy;
-        CreatedAt = DateTimeOffset.UtcNow;
+        SchoolTripId = schoolTripId;
+        AgreementTemplateId = agreementTemplateId;
+        GuardianId = guardianId;
+        FileName = fileName;
+        IsSigned = isSigned;
+        SignedAt = signedAt;
     }
 
-    public AgreementDocumentId AgreementDocumentId { get; private set; }
+    public SchoolTripId SchoolTripId { get; private set; }
+    public AgreementTemplateId AgreementTemplateId { get; private set; }
     public GuardianId GuardianId { get; private set; }
+    public bool IsSigned { get; private set; }
+    public DateTimeOffset? SignedAt { get; private set; }
+    public string? FileName { get; private set; }
 
-    public AgreementDocument AgreementDocument { get; private set; }
-    public Guardian Guardian { get; private set; }
+    public AgreementTemplate? AgreementTemplate { get; init; }
+    public SchoolTrip? SchoolTrip { get; init; }
+    public Guardian? Guardian { get; init; }
 }
