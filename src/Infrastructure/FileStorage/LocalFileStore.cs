@@ -4,10 +4,10 @@ using SchoolTripApi.Domain.Common.DTOs;
 
 namespace SchoolTripApi.Infrastructure.FileStorage;
 
-public class LocalStorageService(IOptions<LocalFileStorageSettings> options, IAppLogger<LocalStorageService> logger)
-    : IFileStorageService
+public class LocalFileStore(IOptions<LocalFileStoreSettings> options, IAppLogger<LocalFileStore> logger)
+    : IFileStore
 {
-    private readonly LocalFileStorageSettings _settings = options.Value;
+    private readonly LocalFileStoreSettings _settings = options.Value;
 
     public async Task<Result> SaveFileAsync(byte[] file, string fileName)
     {
@@ -20,7 +20,7 @@ public class LocalStorageService(IOptions<LocalFileStorageSettings> options, IAp
         catch (Exception ex)
         {
             logger.LogError(ex, "Couldn't save file '{fileName}': {errorMessage}", fileName, ex.Message);
-            return Result.Failure(FileStorageError.FailedToSaveFile(fileName));
+            return Result.Failure(FileStoreError.FailedToSaveFile(fileName));
         }
     }
 
@@ -37,14 +37,14 @@ public class LocalStorageService(IOptions<LocalFileStorageSettings> options, IAp
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to delete file '{fileName}'.", fileName);
-            return Result.Failure(FileStorageError.FailedToDeleteFile(fileName));
+            return Result.Failure(FileStoreError.FailedToDeleteFile(fileName));
         }
     }
 
     public async Task<Result<byte[]>> GetFileAsync(string fileName)
     {
         var filePath = BuildFilePath(fileName);
-        if (!File.Exists(filePath)) return Result.Failure<byte[]>(FileStorageError.FileNotFound(fileName));
+        if (!File.Exists(filePath)) return Result.Failure<byte[]>(FileStoreError.FileNotFound(fileName));
 
         var file = await File.ReadAllBytesAsync(filePath);
         return Result.Success(file);
@@ -53,7 +53,7 @@ public class LocalStorageService(IOptions<LocalFileStorageSettings> options, IAp
     public Result RenameFileAsync(string oldFileName, string newFileName)
     {
         var oldFileFullPath = BuildFilePath(oldFileName);
-        if (!File.Exists(oldFileFullPath)) return Result.Failure(FileStorageError.FileNotFound(oldFileName));
+        if (!File.Exists(oldFileFullPath)) return Result.Failure(FileStoreError.FileNotFound(oldFileName));
 
         var newFileFullPath = BuildFilePath(newFileName);
         try
@@ -64,7 +64,7 @@ public class LocalStorageService(IOptions<LocalFileStorageSettings> options, IAp
         catch (Exception ex)
         {
             logger.LogError(ex, "Couldn't rename file '{oldFileName}': {errorMessage}", oldFileName, ex.Message);
-            return Result.Failure(FileStorageError.FailedToRenameFile(oldFileName));
+            return Result.Failure(FileStoreError.FailedToRenameFile(oldFileName));
         }
     }
 

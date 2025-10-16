@@ -53,7 +53,7 @@ public static class BrazilianGradeLevels
     // 16-17 years old: 'Ensino Médio: 3° ano'
     public static readonly string Em3 = "EM3";
 
-    public static List<string> GetBrazilianSchoolGrades()
+    public static List<string> GetBrazilianGradeLevelCodes()
     {
         return
         [

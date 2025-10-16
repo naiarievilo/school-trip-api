@@ -13,8 +13,8 @@ using SchoolTripApi.Infrastructure.Data;
 namespace SchoolTripApi.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251012190452_Add_Domain_Entities")]
-    partial class Add_Domain_Entities
+    [Migration("20251013192435_Add_Rg_Property_To_Guardian_and_Student")]
+    partial class Add_Rg_Property_To_Guardian_and_Student
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -208,8 +208,10 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                         .HasColumnName("Id");
 
                     b.Property<int>("AgreementTemplateId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("AgreementTemplateId");
+                        .HasColumnName("AgreementTemplateId")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -235,8 +237,10 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("SchoolTripId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("SchoolTripId");
+                        .HasColumnName("SchoolTripId")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
                     b.Property<DateTimeOffset?>("SignedAt")
                         .HasColumnType("timestamp with time zone");
@@ -249,14 +253,17 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolTripId");
 
-                    b.ToTable("Agreement");
+                    b.ToTable("Agreements");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.AgreementAggregate.AgreementTemplate", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -275,12 +282,15 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Version")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("AgreementTemplate");
+                    b.ToTable("AgreementTemplates");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.EnrollmentAggregate.Enrollment", b =>
@@ -311,8 +321,10 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                         .HasColumnName("PaymentId");
 
                     b.Property<int>("SchoolTripId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("SchoolTripId");
+                        .HasColumnName("SchoolTripId")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -331,14 +343,17 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollment");
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.GradeLevelAggregate.GradeLevel", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("GradeLevelCode")
                         .IsRequired()
@@ -346,7 +361,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GradeLevel");
+                    b.ToTable("GradeLevels");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.GuardianAggregate.Guardian", b =>
@@ -379,6 +394,10 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
+
+                    b.Property<string>("Rg")
+                        .HasColumnType("text")
+                        .HasColumnName("Rg");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -429,14 +448,17 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasIndex("GuardianId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.RatingAggregate.Rating", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Comment")
                         .IsRequired()
@@ -461,8 +483,10 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("SchoolTripId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("SchoolTripId");
+                        .HasColumnName("SchoolTripId")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
                     b.Property<int>("TripRating")
                         .HasColumnType("integer")
@@ -474,7 +498,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolTripId");
 
-                    b.ToTable("Rating");
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.SchoolAggregate.School", b =>
@@ -513,18 +537,23 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("School");
+                    b.ToTable("Schools");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.SchoolTripAggregate.SchoolTrip", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("Id");
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<int>("AgreementTemplateId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("AgreementTemplateId");
+                        .HasColumnName("AgreementTemplateId")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
                     b.Property<int>("Category")
                         .HasColumnType("integer");
@@ -577,7 +606,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId");
 
-                    b.ToTable("SchoolTrip");
+                    b.ToTable("SchoolTrips");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Domain.StudentAggregate.Student", b =>
@@ -610,8 +639,10 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("GradeLevelId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("GradeLevelId");
+                        .HasColumnName("GradeLevelId")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
                     b.Property<Guid>("GuardianId")
                         .HasColumnType("uuid")
@@ -622,6 +653,11 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
+
+                    b.Property<string>("Rg")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Rg");
 
                     b.Property<Guid>("SchoolId")
                         .HasColumnType("uuid")
@@ -638,7 +674,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId");
 
-                    b.ToTable("Student");
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("SchoolTripApi.Infrastructure.Security.Entities.Account", b =>
@@ -725,7 +761,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2025, 10, 12, 19, 4, 51, 500, DateTimeKind.Utc).AddTicks(8353));
+                        .HasDefaultValue(new DateTime(2025, 10, 13, 19, 24, 34, 703, DateTimeKind.Utc).AddTicks(4410));
 
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("boolean");
@@ -1008,7 +1044,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                             b1.HasKey("PaymentId");
 
-                            b1.ToTable("Payment");
+                            b1.ToTable("Payments");
 
                             b1.WithOwner()
                                 .HasForeignKey("PaymentId");
@@ -1083,7 +1119,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                             b1.HasKey("SchoolId");
 
-                            b1.ToTable("School");
+                            b1.ToTable("Schools");
 
                             b1.WithOwner()
                                 .HasForeignKey("SchoolId");
@@ -1149,7 +1185,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                             b1.HasKey("SchoolTripId");
 
-                            b1.ToTable("SchoolTrip");
+                            b1.ToTable("SchoolTrips");
 
                             b1.WithOwner()
                                 .HasForeignKey("SchoolTripId");
@@ -1170,7 +1206,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                             b1.HasKey("SchoolTripId");
 
-                            b1.ToTable("SchoolTrip");
+                            b1.ToTable("SchoolTrips");
 
                             b1.WithOwner()
                                 .HasForeignKey("SchoolTripId");
@@ -1191,7 +1227,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
 
                             b1.HasKey("SchoolTripId");
 
-                            b1.ToTable("SchoolTrip");
+                            b1.ToTable("SchoolTrips");
 
                             b1.WithOwner()
                                 .HasForeignKey("SchoolTripId");

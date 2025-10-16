@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolTripApi.Domain.Common.Enums;
@@ -12,9 +13,11 @@ using SchoolTripApi.Infrastructure.Data;
 namespace SchoolTripApi.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251013172757_Initial_Schema")]
+    partial class Initial_Schema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -392,10 +395,6 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Rg")
-                        .HasColumnType("text")
-                        .HasColumnName("Rg");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -651,11 +650,6 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Rg")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Rg");
-
                     b.Property<Guid>("SchoolId")
                         .HasColumnType("uuid")
                         .HasColumnName("SchoolId");
@@ -758,7 +752,7 @@ namespace SchoolTripApi.Infrastructure.Data.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2025, 10, 13, 19, 24, 34, 703, DateTimeKind.Utc).AddTicks(4410));
+                        .HasDefaultValue(new DateTime(2025, 10, 13, 17, 27, 56, 430, DateTimeKind.Utc).AddTicks(6224));
 
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("boolean");

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Termo de Autorização - Viagem Nacional</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+            background: #fff;
+            padding: 2.5cm;
+        }
+
+        .document-container {
+            max-width: 21cm;
+            margin: 0 auto;
+        }
+
+        .document-header {
+            text-align: center;
+            margin-bottom: 2cm;
+            padding-bottom: 0.8cm;
+            border-bottom: 2px solid #000;
+        }
+
+        .document-header h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5cm;
+            letter-spacing: 1.5px;
+        }
+
+        .document-date {
+            font-size: 11pt;
+            font-style: italic;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 12pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 1.2cm;
+            margin-bottom: 0.6cm;
+            padding-bottom: 0.3cm;
+            border-bottom: 1px solid #000;
+        }
+
+        h3 {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 0.8cm;
+            margin-bottom: 0.4cm;
+            text-transform: uppercase;
+        }
+
+        .info-section {
+            margin-bottom: 1cm;
+            padding: 0.6cm;
+            background: #f8f8f8;
+            border-left: 4px solid #000;
+        }
+
+        .info-section p {
+            margin-bottom: 0.4cm;
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+
+        .info-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .declaration-text {
+            text-align: justify;
+            text-indent: 2cm;
+            margin-bottom: 1cm;
+            font-size: 11pt;
+            line-height: 1.8;
+        }
+
+        .declaration-list {
+            margin-left: 2cm;
+            margin-bottom: 1cm;
+            counter-reset: declaration-counter;
+            list-style: none;
+        }
+
+        .declaration-list li {
+            margin-bottom: 0.5cm;
+            text-align: justify;
+            font-size: 11pt;
+            line-height: 1.7;
+            counter-increment: declaration-counter;
+            position: relative;
+            padding-left: 1.5cm;
+        }
+
+        .declaration-list li::before {
+            content: counter(declaration-counter) ".";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .legal-notice {
+            margin-top: 1.5cm;
+            margin-bottom: 1.5cm;
+            padding: 0.8cm;
+            background: #f0f0f0;
+            border: 2px solid #000;
+        }
+
+        .legal-notice p {
+            text-align: justify;
+            font-size: 10pt;
+            line-height: 1.7;
+            margin-bottom: 0.5cm;
+        }
+
+        .legal-notice p:last-child {
+            margin-bottom: 0;
+        }
+
+        .signature-section {
+            margin-top: 2.5cm;
+            page-break-inside: avoid;
+        }
+
+        .signature-location {
+            text-align: right;
+            margin-bottom: 2cm;
+            font-size: 11pt;
+        }
+
+        .signature-line {
+            margin-top: 2.5cm;
+            text-align: center;
+        }
+
+        .signature-line hr {
+            width: 50%;
+            margin: 0 auto 0.4cm auto;
+            border: none;
+            border-top: 1px solid #000;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-bottom: 0.2cm;
+        }
+
+        .signature-role {
+            font-size: 10pt;
+            margin-bottom: 0.2cm;
+        }
+
+        .signature-document {
+            font-size: 10pt;
+            color: #333;
+        }
+
+        .signature-metadata {
+            margin-top: 1.5cm;
+            padding: 0.6cm;
+            background: #f5f5f5;
+            border: 1px solid #ccc;
+        }
+
+        .signature-metadata p {
+            font-size: 9pt;
+            margin-bottom: 0.3cm;
+            color: #333;
+        }
+
+        .signature-metadata p:last-child {
+            margin-bottom: 0;
+        }
+
+        .document-footer {
+            margin-top: 2cm;
+            padding-top: 0.8cm;
+            border-top: 1px solid #000;
+            text-align: center;
+        }
+
+        .document-footer p {
+            font-size: 9pt;
+            color: #666;
+            margin-bottom: 0.3cm;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+
+        .special-section {
+            margin: 1cm 0;
+            padding: 0.6cm;
+            background: #fafafa;
+            border-left: 4px solid #000;
+        }
+
+        .special-section p {
+            text-align: justify;
+            font-size: 11pt;
+            line-height: 1.7;
+            margin-bottom: 0.5cm;
+        }
+
+        .special-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        @media print {
+            body {
+                padding: 1.5cm;
+            }
+            
+            .signature-section {
+                page-break-inside: avoid;
+            }
+
+            .info-section {
+                background: #f8f8f8 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .legal-notice {
+                background: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="document-container">
+    <header class="document-header">
+        <h1>Termo de Autorização de Viagem Nacional</h1>
+        <p class="document-date">{{DOCUMENT_DATE}}</p>
+    </header>
+
+    <section class="document-content">
+        <h2>I. Identificação do Responsável Legal</h2>
+        <div class="info-section">
+            <p><strong>Nome Completo:</strong> {{GUARDIAN_FULL_NAME}}</p>
+            <p><strong>CPF:</strong> {{GUARDIAN_CPF}}</p>
+            <p><strong>Endereço Completo:</strong> {{GUARDIAN_ADDRESS}}</p>
+            <p><strong>Telefone:</strong> {{GUARDIAN_PHONE}}</p>
+            <p><strong>E-mail:</strong> {{GUARDIAN_EMAIL}}</p>
+        </div>
+
+        <h2>II. Identificação do Estudante</h2>
+        <div class="info-section">
+            <p><strong>Nome Completo:</strong> {{STUDENT_FULL_NAME}}</p>
+            <p><strong>Data de Nascimento:</strong> {{STUDENT_BIRTH_DATE}}</p>
+            <p><strong>CPF:</strong> {{STUDENT_CPF}}</p>
+        </div>
+
+        <h2>III. Dados da Viagem</h2>
+        <div class="info-section">
+            <p><strong>Destino:</strong> {{TRIP_DESTINATION}}</p>
+            <p><strong>Estado:</strong> {{TRIP_STATE}}</p>
+            <p><strong>Data de Partida:</strong> {{TRIP_START_DATE}}</p>
+            <p><strong>Data de Retorno:</strong> {{TRIP_END_DATE}}</p>
+            <p><strong>Duração Total:</strong> {{TRIP_DURATION}}</p>
+            <p><strong>Propósito da Viagem:</strong> {{TRIP_PURPOSE}}</p>
+        </div>
+
+        <h2>IV. Declaração e Autorizações</h2>
+        <h3>4.1. Declarações do Responsável Legal</h3>
+        <p class="declaration-text">
+            Eu, <strong>{{GUARDIAN_FULL_NAME}}</strong>, portador(a) do CPF <strong>{{GUARDIAN_CPF}}</strong>,
+            na qualidade de responsável legal pelo(a) estudante <strong>{{STUDENT_FULL_NAME}}</strong>,
+            declaro estar plenamente ciente e <strong>AUTORIZO</strong> expressamente a participação do(a) menor
+            nas atividades educacionais programadas durante a viagem nacional ao estado de
+            <strong>{{TRIP_STATE}}</strong>.
+        </p>
+        <p class="declaration-text">Ao assinar este documento, declaro que:</p>
+        <ul class="declaration-list">
+            <li>Estou plenamente ciente do itinerário completo, datas, horários e atividades programadas para a
+                viagem;
+            </li>
+            <li>O(A) estudante encontra-se em boas condições de saúde física e mental para participar integralmente da
+                viagem;
+            </li>
+            <li>Autorizo expressamente a administração de medicamentos necessários em caso de emergência médica;</li>
+            <li>Autorizo o atendimento médico emergencial, inclusive procedimentos cirúrgicos, se necessário para
+                preservação da saúde e vida;
+            </li>
+            <li>Forneci informações completas e verídicas sobre alergias, medicamentos de uso contínuo e condições de
+                saúde relevantes;
+            </li>
+            <li>Responsabilizo-me integralmente por quaisquer danos materiais causados pelo(a) estudante durante a
+                viagem;
+            </li>
+            <li>Declaro ter lido e concordado com todas as regras de conduta estabelecidas pela instituição para a
+                viagem;
+            </li>
+            <li>Autorizo o registro fotográfico, em vídeo e audiovisual do(a) estudante para fins estritamente
+                educacionais e de documentação institucional.
+            </li>
+        </ul>
+
+        <h3>4.2. Informações de Saúde do Estudante</h3>
+        <div class="info-section">
+            <p><strong>Plano de Saúde:</strong> {{STUDENT_HEALTH_INSURANCE}}</p>
+            <p><strong>Número da Carteirinha:</strong> {{HEALTH_INSURANCE_NUMBER}}</p>
+            <p><strong>Alergias Conhecidas:</strong> {{STUDENT_ALLERGIES}}</p>
+            <p><strong>Medicamentos de Uso Contínuo:</strong> {{STUDENT_MEDICATIONS}}</p>
+            <p><strong>Restrições Alimentares:</strong> {{STUDENT_DIETARY_RESTRICTIONS}}</p>
+        </div>
+
+        <h3>4.3. Contato de Emergência</h3>
+        <div class="info-section">
+            <p><strong>Nome:</strong> {{EMERGENCY_CONTACT_NAME}}.</p>
+            <p><strong>Telefone:</strong> {{EMERGENCY_CONTACT_PHONE}}.</p>
+        </div>
+
+        <div class="legal-notice">
+            <p>
+                <strong>VALIDADE LEGAL:</strong> Este documento possui plena validade legal e substitui qualquer
+                autorização anterior referente à viagem descrita neste instrumento.
+            </p>
+            <p>
+                <strong>COMPROMISSO INSTITUCIONAL:</strong> A instituição organizadora compromete-se a zelar pela
+                segurança, integridade física e bem-estar de todos os participantes durante todo o período da viagem,
+                adotando todas as medidas de segurança e cuidado necessárias.
+            </p>
+        </div>
+    </section>
+
+    <footer class="signature-section">
+        <p class="signature-location">{{SIGNATURE_CITY}}, {{SIGNATURE_DATE}}</p>
+
+        <div class="signature-line">
+            <hr/>
+            <p class="signature-name">{{GUARDIAN_FULL_NAME}}</p>
+            <p class="signature-role">Responsável Legal</p>
+            <p class="signature-document">CPF: {{GUARDIAN_CPF}}</p>
+        </div>
+
+        <div class="document-footer">
+            <p>Documento Nº {{DOCUMENT_NUMBER}} | Versão {{DOCUMENT_VERSION}}</p>
+            <p>Gerado em: {{GENERATED_AT}}</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

@@ -13,20 +13,20 @@ using SchoolTripApi.Infrastructure.WebScraping.Settings;
 
 namespace SchoolTripApi.Infrastructure.WebScraping.Services;
 
-public class SignatureValidationService(
-    IOptions<SignatureValidationSettings> signatureValidationOptions,
-    IAppLogger<SignatureValidationService> logger,
+public class SignatureValidator(
+    IOptions<SignatureValidatorSettings> signatureValidationOptions,
+    IAppLogger<SignatureValidator> logger,
     IBrowserService<IBrowser, IPage> browserService,
-    IFileStorageService fileStorageService
-) : ISignatureValidationService
+    IFileStore fileStore
+) : ISignatureValidator
 {
     private const string PdfExtension = ".pdf";
     private const string DownloadExtension = ".crdownload";
     private const string ReportPrefix = "Relatorio - ";
 
-    private readonly SignatureValidationSettings _settings = signatureValidationOptions.Value;
+    private readonly SignatureValidatorSettings _settings = signatureValidationOptions.Value;
 
-    public async Task<Result<SignatureValidationResult>> ValidatePdfAsync(byte[] pdfData, string fileName)
+    public async Task<Result<SignatureValidationResult>> ValidateFileSignatureAsync(byte[] file, string fileName)
     {
         try
         {
@@ -36,7 +36,7 @@ public class SignatureValidationService(
             if (getPage.Failed) return Result.Failure<SignatureValidationResult>(getPage.Error);
             var page = getPage.Value;
 
-            await page.GoToAsync(_settings.ValidationUrl,
+            await page.GoToAsync(_settings.ValidatorUrl,
                 PageNavigationOptions(WaitUntilNavigation.Networkidle0, 30000));
             await page.WaitForSelectorAsync("#form", WaitForSelector(10000));
             await page.ClickAsync("#acceptTerms");
@@ -45,8 +45,8 @@ public class SignatureValidationService(
             if (fileInput is null)
                 throw new Exception($"Couldn't find input to upload file '{fileName}'.");
 
-            await fileStorageService.SaveFileAsync(pdfData, fileName);
-            var filePath = fileStorageService.GetFilePath(fileName);
+            await fileStore.SaveFileAsync(file, fileName);
+            var filePath = fileStore.GetFilePath(fileName);
 
             await fileInput.UploadFileAsync(filePath);
             await page.WaitForFunctionAsync(@"
@@ -233,7 +233,7 @@ public class SignatureValidationService(
             document.querySelector('#btn-pdf') && !document.querySelector('#btn-pdf').disabled
         ");
 
-        var filesBasePath = fileStorageService.GetFilesBasePath();
+        var filesBasePath = fileStore.GetFilesBasePath();
         await page.Client.SendAsync("Browser.setDownloadBehavior", new
         {
             behavior = "allow",
@@ -275,13 +275,13 @@ public class SignatureValidationService(
 
         var newFileName = $"{fileName}-validation-report{PdfExtension}";
         var newFileFullPath = Path.Combine(filesBasePath, newFileName);
-        var renameDownloadedReport = fileStorageService.RenameFileAsync(downloadedFile, newFileFullPath);
+        var renameDownloadedReport = fileStore.RenameFileAsync(downloadedFile, newFileFullPath);
         if (renameDownloadedReport.Failed) return Result.Failure<byte[]>(renameDownloadedReport.Error);
 
 
         watcher.Dispose();
         await browserService.ReleasePageAsync(page);
-        return await fileStorageService.GetFileAsync(newFileFullPath);
+        return await fileStore.GetFileAsync(newFileFullPath);
     }
 
     private async Task<Result<FileValidationInfo>> ExtractFileValidationInfoAsync(IPage page)

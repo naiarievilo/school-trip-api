@@ -2,13 +2,24 @@
   <dictionary name="project">
     <words>
       <w>anos</w>
+      <w>aprovada</w>
+      <w>arquivo</w>
+      <w>assinado</w>
       <w>berçário</w>
+      <w>cnpj</w>
+      <w>documento</w>
       <w>ensino</w>
       <w>escola</w>
       <w>finais</w>
+      <w>frase</w>
+      <w>identificador</w>
       <w>iniciais</w>
       <w>inicias</w>
+      <w>numserie</w>
       <w>postgre</w>
+      <w>setuid</w>
+      <w>urlselectorbutton</w>
+      <w>validacao</w>
     </words>
   </dictionary>
 </component>

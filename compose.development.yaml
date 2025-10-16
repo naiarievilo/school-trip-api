@@ -1,14 +1,26 @@
 ﻿services:
-  db:
+  postgres:
     image: postgres:16-alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=secure-password
       - POSTGRES_DB=school-trip-api
     volumes:
-      - school-trip-api:/var/lib/postgresql/data
+      - school-trip-api-sql-db:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  
+  mongodb:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=secure-password
+      - MONGO_INITDB_DATABASE=school-trip-api
+    volumes:
+      - school-trip-api-nosql-db:/data/db
+    ports:
+      - "27017:27017"
+    
   
   smtp:
     image: axllent/mailpit
@@ -20,4 +32,5 @@
       MP_SMTP_AUTH_ALLOW_INSECURE: true
 
 volumes:
-  school-trip-api:
+  school-trip-api-sql-db:
+  school-trip-api-nosql-db:

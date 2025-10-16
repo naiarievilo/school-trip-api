@@ -13,8 +13,9 @@ public sealed class GradeLevel : Entity<GradeLevelId>, IAggregateRoot
     private readonly ICollection<Student> _students = new List<Student>();
     private readonly ICollection<SchoolTrip> _trips = new List<SchoolTrip>();
 
-    public GradeLevel(string gradeLevelCode)
+    private GradeLevel(GradeLevelId id, string gradeLevelCode)
     {
+        Id = id;
         GradeLevelCode = gradeLevelCode;
     }
 
@@ -23,6 +24,11 @@ public sealed class GradeLevel : Entity<GradeLevelId>, IAggregateRoot
     public IEnumerable<Student> Students => _students;
     public IEnumerable<School> Schools => _schools;
     public IEnumerable<SchoolTrip> Trips => _trips;
+
+    public static GradeLevel Create(GradeLevelId id, string gradeLevelCode)
+    {
+        return new GradeLevel(id, gradeLevelCode);
+    }
 
     public Result AddTrip(SchoolTrip schoolTrip)
     {

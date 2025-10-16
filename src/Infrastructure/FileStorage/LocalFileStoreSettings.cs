@@ -1,6 +1,6 @@
 namespace SchoolTripApi.Infrastructure.FileStorage;
 
-public class LocalFileStorageSettings
+public class LocalFileStoreSettings
 {
     public required string SignedAgreementsPath { get; set; }
 }

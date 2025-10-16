@@ -18,6 +18,7 @@ public sealed class Student : AuditableEntity<StudentId>, IAggregateRoot
     private readonly ICollection<Enrollment> _enrollments = new List<Enrollment>();
 
     public Student(GuardianId guardianId, SchoolId schoolId, GradeLevelId gradeLevelId, FullName fullName, Cpf cpf,
+        Rg rg,
         DateOnly dateOfBirth, Class? gradeClass, string createdBy) : base(createdBy)
     {
         GuardianId = guardianId;
@@ -25,6 +26,7 @@ public sealed class Student : AuditableEntity<StudentId>, IAggregateRoot
         GradeLevelId = gradeLevelId;
         FullName = fullName;
         Cpf = cpf;
+        Rg = rg;
         DateOfBirth = dateOfBirth;
         GradeClass = gradeClass;
     }
@@ -34,6 +36,7 @@ public sealed class Student : AuditableEntity<StudentId>, IAggregateRoot
     public GradeLevelId GradeLevelId { get; private set; }
     public FullName FullName { get; private set; }
     public Cpf Cpf { get; private set; }
+    public Rg Rg { get; private set; }
     public DateOnly DateOfBirth { get; private set; }
     public Class? GradeClass { get; private set; }
 

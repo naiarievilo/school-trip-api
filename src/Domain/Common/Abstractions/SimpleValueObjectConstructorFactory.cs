@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SchoolTripApi.Domain.Common.Abstractions;
 
@@ -21,7 +22,7 @@ public abstract class SimpleValueObjectConstructorFactory
     {
         var valueObject = typeof(TValueObject);
 
-        var constructor = valueObject.GetConstructor([typeof(TValue)]);
+        var constructor = valueObject.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(TValue)]);
         if (constructor is null || constructor.GetParameters().Length > 1)
             throw new InvalidOperationException(
                 $"Value object '{valueObject.Name}' must have a constructor that accepts one '{typeof(TValue).Name}' parameter.");

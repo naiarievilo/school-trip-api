@@ -9,6 +9,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- MongoDB-->
+        <PackageReference Include="MongoDB.Driver"/>
+        <PackageReference Include="MongoDB.Bson"/>
+
         <!-- Entity Framework Core -->
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design"/>
@@ -37,7 +41,12 @@
 
     <ItemGroup>
         <Folder Include="Data\Migrations\"/>
-        <Folder Include="Templates\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Remove="Templates\*.html"/>
+        <EmbeddedResource Include="Templates\*.html">
+            <LogicalName>Templates/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
     </ItemGroup>
 
 </Project>

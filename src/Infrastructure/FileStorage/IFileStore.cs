@@ -2,7 +2,7 @@ using SchoolTripApi.Domain.Common.DTOs;
 
 namespace SchoolTripApi.Infrastructure.FileStorage;
 
-public interface IFileStorageService
+public interface IFileStore
 {
     public Task<Result> SaveFileAsync(byte[] file, string fileName);
     public Result DeleteFileAsync(string fileName);

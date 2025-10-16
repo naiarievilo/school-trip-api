@@ -26,6 +26,25 @@
     <ItemGroup>
         <Folder Include="Agreements\Commands\"/>
         <Folder Include="Agreements\Queries\"/>
+        <Folder Include="Enrollments\Commands\"/>
+        <Folder Include="Enrollments\DTOs\"/>
+        <Folder Include="Enrollments\Queries\"/>
+        <Folder Include="GradeLevels\Queries\"/>
         <Folder Include="Guardians\Errors\"/>
+        <Folder Include="Payments\Commands\"/>
+        <Folder Include="Payments\DTOs\"/>
+        <Folder Include="Payments\Queries\"/>
+        <Folder Include="Ratings\Commands\"/>
+        <Folder Include="Ratings\DTOs\"/>
+        <Folder Include="Ratings\Queries\"/>
+        <Folder Include="Schools\Commands\"/>
+        <Folder Include="Schools\DTOs\"/>
+        <Folder Include="Schools\Queries\"/>
+        <Folder Include="SchoolTrips\Commands\"/>
+        <Folder Include="SchoolTrips\DTOs\"/>
+        <Folder Include="SchoolTrips\Queries\"/>
+        <Folder Include="Students\Commands\"/>
+        <Folder Include="Students\DTOs\"/>
+        <Folder Include="Students\Queries\"/>
     </ItemGroup>
 </Project>

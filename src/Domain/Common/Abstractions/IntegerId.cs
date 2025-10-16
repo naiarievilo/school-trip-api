@@ -5,6 +5,11 @@ namespace SchoolTripApi.Domain.Common.Abstractions;
 
 public abstract class IntegerId<TId>(int value) : SimpleValueObject<TId, int>(value)
 {
+    // For EF Core (integer-based ID autogeneration when using 'SaveChanges')
+    protected IntegerId() : this(0)
+    {
+    }
+
     public static Result<TId> TryFrom(string? value)
     {
         return TryFrom(value, ConvertToInt);

@@ -1,7 +1,7 @@
 namespace SchoolTripApi.Infrastructure.WebScraping.Settings;
 
-public class SignatureValidationSettings
+public class SignatureValidatorSettings
 {
-    public required string ValidationUrl { get; init; }
+    public required string ValidatorUrl { get; init; }
     public required int ValidationTimeout { get; init; }
 }

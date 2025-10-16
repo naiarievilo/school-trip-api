@@ -17,7 +17,7 @@ public sealed partial class Cpf : SimpleValueObject<Cpf, string>, ISimpleValueOb
     public static string Validate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new ValueObjectException("CPF is required.");
-        if (value.Length > MaxLength) throw new ValueObjectException("CPF is too long.");
+        if (value.Length > MaxLength) throw new ValueObjectException($"CPF cannot exceed {MaxLength} characters.");
         return CpfPattern.IsMatch(value) ? value : throw new ValueObjectException("CPF provided is invalid.");
     }
 

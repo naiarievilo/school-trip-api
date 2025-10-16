@@ -67,7 +67,20 @@ internal static class ValueObjectConfiguration
                 .HasConversion(converter as ValueConverter)
                 .HasColumnName(propertyName);
 
-            ApplyMaxLengthIfApplicable(propertyType, propertyBuilder);
+            IncludeMaxLength(propertyType, propertyBuilder);
+            IncludeIntegerIdGeneratedValues(propertyType, propertyBuilder);
+        }
+    }
+
+    private static void IncludeIntegerIdGeneratedValues(Type propertyType, PropertyBuilder propertyBuilder)
+    {
+        var currentType = propertyType;
+        while (currentType is not null && currentType != typeof(object))
+        {
+            if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == typeof(IntegerId<>))
+                propertyBuilder.ValueGeneratedOnAdd();
+
+            currentType = currentType.BaseType;
         }
     }
 
@@ -87,11 +100,11 @@ internal static class ValueObjectConfiguration
                 .HasConversion(converter as ValueConverter)
                 .HasColumnName(propertyName);
 
-            ApplyMaxLengthIfApplicable(propertyType, propertyBuilder);
+            IncludeMaxLength(propertyType, propertyBuilder);
         }
     }
 
-    private static void ApplyMaxLengthIfApplicable(Type propertyType, PropertyBuilder propertyBuilder)
+    private static void IncludeMaxLength(Type propertyType, PropertyBuilder propertyBuilder)
     {
         if (propertyType != typeof(string)) return;
         var maxLength = GetMaxLengthFromValueObject(propertyType);

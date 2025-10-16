@@ -7,12 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using PuppeteerSharp;
 using SchoolTripApi.Application.Accounts.Abstractions;
 using SchoolTripApi.Application.Agreements.Abstractions;
 using SchoolTripApi.Application.Common.Abstractions;
 using SchoolTripApi.Domain.GuardianAggregate;
 using SchoolTripApi.Infrastructure.Data;
+using SchoolTripApi.Infrastructure.Data.Configurations;
 using SchoolTripApi.Infrastructure.Data.Repositories;
 using SchoolTripApi.Infrastructure.Email;
 using SchoolTripApi.Infrastructure.FileStorage;
@@ -24,35 +26,61 @@ using SchoolTripApi.Infrastructure.Security.Tasks;
 using SchoolTripApi.Infrastructure.WebScraping.Abstractions;
 using SchoolTripApi.Infrastructure.WebScraping.Services;
 using SchoolTripApi.Infrastructure.WebScraping.Settings;
+using SignatureValidator = SchoolTripApi.Infrastructure.WebScraping.Services.SignatureValidator;
 
 namespace SchoolTripApi.Infrastructure;
 
 public static class DependencyInjection
 {
+    private const string DefaultConnection = "DefaultConnection";
+
     public static void AddInfrastructureConfiguration(this IServiceCollection services,
         IConfiguration configuration, IWebHostEnvironment environment)
     {
-        services.AddAppDbContext(configuration)
-            .AddIdentityCore()
-            .AddRepositories();
-
+        services.AddDatabases(configuration);
         services.AddSecurity(configuration);
         services.AddEmailing(configuration);
-        services.AddFileStorage(configuration, environment);
-        services.AddWebScraping(configuration);
+        services.AddFileStore(configuration, environment);
+        services.AddWebScraper(configuration);
         services.AddLogging();
     }
 
-    private static IServiceCollection AddAppDbContext(this IServiceCollection services,
+    private static void AddDatabases(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddEntityFrameworkCore(configuration)
+            .AddIdentityCore()
+            .AddRepositories();
+        services.AddMongoDb(configuration);
+    }
+
+    private static IServiceCollection AddEntityFrameworkCore(this IServiceCollection services,
         IConfiguration configuration)
     {
         services.AddDbContext<AppDbContext>(opts =>
         {
-            opts.UseNpgsql(configuration.GetConnectionString("DefaultConnection") ??
+            opts.UseNpgsql(configuration.GetConnectionString(DefaultConnection) ??
                            throw new InvalidOperationException());
         });
 
         return services;
+    }
+
+    private static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
+    {
+        MongoDbConfiguration.ConfigureEntities();
+        services.AddSingleton<IMongoClient>(sp =>
+        {
+            var connectionString = configuration.GetConnectionString("MongoDB");
+            return new MongoClient(connectionString);
+        });
+
+        services.AddScoped(sp =>
+        {
+            var client = sp.GetRequiredService<IMongoClient>();
+            var connectionString = configuration.GetConnectionString("MongoDB");
+            var mongoUrl = MongoUrl.Create(connectionString);
+            return client.GetDatabase(mongoUrl.DatabaseName);
+        });
     }
 
     private static void AddRepositories(this IServiceCollection services)
@@ -88,7 +116,7 @@ public static class DependencyInjection
     private static void AddEmailing(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<EmailSettings>(configuration.GetSection("MailingSettings"));
+        services.Configure<EmailSettings>(configuration.GetSection(nameof(EmailSettings)));
         services.AddScoped<IEmailSender, EmailSender>();
     }
 
@@ -110,7 +138,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         // SPA settings
-        var clientSection = configuration.GetSection("Client");
+        var clientSection = configuration.GetSection(nameof(ClientSettings));
         services.Configure<ClientSettings>(clientSection);
     }
 
@@ -124,7 +152,7 @@ public static class DependencyInjection
         services.AddScoped<IAccountManager, AccountManager>();
 
         // Avoid creating duplicate code in IJwtTokenProvider implementation and authentication settings
-        var jwtSettingsSection = configuration.GetSection("Jwt");
+        var jwtSettingsSection = configuration.GetSection(nameof(JwtSettings));
         services.Configure<JwtSettings>(jwtSettingsSection);
         var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
         var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings!.Secret));
@@ -151,7 +179,7 @@ public static class DependencyInjection
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-        var adminSettingsSection = configuration.GetSection("AdminSettings");
+        var adminSettingsSection = configuration.GetSection(nameof(AdminSettings));
         services.Configure<AdminSettings>(adminSettingsSection);
     }
 
@@ -160,32 +188,33 @@ public static class DependencyInjection
         services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
     }
 
-    private static void AddWebScraping(this IServiceCollection services, IConfiguration configuration)
+    private static void AddWebScraper(this IServiceCollection services, IConfiguration configuration)
     {
-        var browserSection = configuration.GetSection("BrowserSettings");
-        var signatureValidationSection = configuration.GetSection("SignatureValidationSettings");
+        var browserSection = configuration.GetSection(nameof(BrowserSettings));
+        var signatureValidationSection = configuration.GetSection(nameof(SignatureValidatorSettings));
         services.Configure<BrowserSettings>(browserSection);
-        services.Configure<SignatureValidationSettings>(signatureValidationSection);
+        services.Configure<SignatureValidatorSettings>(signatureValidationSection);
 
         services.AddSingleton<IAppLogger<BrowserService>, AppLogger<BrowserService>>();
         services.AddSingleton<IBrowserService<IBrowser, IPage>, BrowserService>();
-        services.AddScoped<ISignatureValidationService, SignatureValidationService>();
+        services.AddScoped<ISignatureValidator, SignatureValidator>();
     }
 
-    private static void AddFileStorage(this IServiceCollection services, IConfiguration configuration,
+    private static void AddFileStore(this IServiceCollection services, IConfiguration configuration,
         IWebHostEnvironment environment)
     {
+        // Currently only set up for development environment
         if (environment.EnvironmentName != "Development") return;
 
         var solutionRoot = Directory.GetParent(environment.ContentRootPath)?.FullName!;
 
-        services.Configure<LocalFileStorageSettings>(options =>
+        services.Configure<LocalFileStoreSettings>(options =>
         {
-            var settings = configuration.GetSection("FileStorageSettings").Get<LocalFileStorageSettings>();
+            var settings = configuration.GetSection(nameof(LocalFileStoreSettings)).Get<LocalFileStoreSettings>();
             options.SignedAgreementsPath = Path.Combine(solutionRoot, settings!.SignedAgreementsPath);
             Directory.CreateDirectory(options.SignedAgreementsPath);
         });
 
-        services.AddScoped<IFileStorageService, LocalStorageService>();
+        services.AddScoped<IFileStore, LocalFileStore>();
     }
 }

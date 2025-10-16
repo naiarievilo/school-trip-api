@@ -8,6 +8,7 @@ internal sealed class GradeLevelConfiguration : IEntityTypeConfiguration<GradeLe
 {
     public void Configure(EntityTypeBuilder<GradeLevel> builder)
     {
+        builder.HasKey(g => g.Id);
         builder.ConfigureValueObjects();
     }
 }

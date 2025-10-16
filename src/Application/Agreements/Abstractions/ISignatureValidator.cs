@@ -3,7 +3,7 @@ using SchoolTripApi.Domain.Common.DTOs;
 
 namespace SchoolTripApi.Application.Agreements.Abstractions;
 
-public interface ISignatureValidationService
+public interface ISignatureValidator
 {
-    Task<Result<SignatureValidationResult>> ValidatePdfAsync(byte[] pdfData, string fileName);
+    Task<Result<SignatureValidationResult>> ValidateFileSignatureAsync(byte[] file, string fileName);
 }

@@ -21,25 +21,27 @@ public sealed class Guardian : AuditableEntity<GuardianId>, IAggregateRoot
     private readonly ICollection<School> _schools = new List<School>();
     private readonly ICollection<Student> _students = new List<Student>();
 
-    private Guardian(AccountId accountId, FullName fullName, Cpf? cpf, Address? address,
+    private Guardian(AccountId accountId, FullName fullName, Cpf? cpf, Rg? rg, Address? address,
         EmergencyContact? emergencyContact, string createdBy) : base(createdBy)
     {
         Id = GuardianId.From(Guid.NewGuid());
         AccountId = accountId;
         FullName = fullName;
         Cpf = cpf;
+        Rg = rg;
         Address = address;
         EmergencyContact = emergencyContact;
     }
 
     public Guardian(AccountId accountId, FullName fullName, string createdBy)
-        : this(accountId, fullName, null, null, null, createdBy)
+        : this(accountId, fullName, null, null, null, null, createdBy)
     {
     }
 
     public AccountId AccountId { get; }
     public FullName? FullName { get; }
     public Cpf? Cpf { get; private set; }
+    public Rg? Rg { get; private set; }
     public Address? Address { get; private set; }
     public EmergencyContact? EmergencyContact { get; private set; }
     public GuardianStatus Status { get; private set; } = GuardianStatus.Active;
